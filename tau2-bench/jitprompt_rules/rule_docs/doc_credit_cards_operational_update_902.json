@@ -1,0 +1,5 @@
+{
+  "id": "doc_credit_cards_operational_update_902",
+  "title": "Internal: Replacement Cards - Expedited Shipping Frequency",
+  "content": "## Frequency Limit\n\n- Expedited shipping on replacement credit cards is limited to one expedited replacement per credit card account in any rolling 12-month period. This applies to every card tier, including tiers where expedited shipping is complimentary.\n\n## Checking Prior Replacements\n\n- Before offering expedited shipping, review the account's replacement history with get_pending_replacement_orders_5765. The tool lists every replacement order on the account, including delivered ones, with the order date and whether it shipped expedited.\n\n## When the Limit Has Been Reached\n\n- If an expedited replacement was ordered for the account within the last 12 months, place the new replacement with standard delivery (expedited_shipping: false) and let the customer know to expect it in 7–10 business days.\n"
+}

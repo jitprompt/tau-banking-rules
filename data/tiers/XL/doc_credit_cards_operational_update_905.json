@@ -1,0 +1,5 @@
+{
+  "id": "doc_credit_cards_operational_update_905",
+  "title": "Rho-Bank Plus Members: Extended Introductory APR Period",
+  "content": "## Extended Introductory Period\n\n- Customers with an active Rho-Bank Plus subscription receive a 15-month introductory APR period on new personal credit cards, instead of the standard 12 months.\n\n## Agent Guidance\n\n- The subscription appears on the customer's profile as rho_bank_plus_subscription.\n- When applying or correcting an introductory APR for a Plus member, set the promotional APR expiration to 15 months after the account open date.\n"
+}

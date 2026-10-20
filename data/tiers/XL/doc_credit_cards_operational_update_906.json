@@ -1,0 +1,5 @@
+{
+  "id": "doc_credit_cards_operational_update_906",
+  "title": "Internal: Platinum Rewards Card - CLI Request Amount (Effective 10/01/2025)",
+  "content": "## Change Summary\n\n- Effective 10/01/2025, credit limit increase requests on the Platinum Rewards Card are limited to $2,000 per request.\n- The tier percentage limit and all other CLI eligibility criteria are unchanged.\n\n## Agent Guidance\n\n- If the customer asks for more than $2,000, explain the per-request amount and offer to submit $2,000 once the customer agrees.\n"
+}

@@ -1,0 +1,114 @@
+{
+  "id": "task_R10_t",
+  "description": {
+    "purpose": "Planted rule R10 (triggered)",
+    "relevant_policies": null,
+    "notes": "R10 (exception), triggered task. Trigger: early closure fee waiver requested on a checking account that received a new-account bonus. The rule applies here; the golden actions follow it."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Jordan Mitchell, a 26-year-old graduate student. You have two checking accounts with Rho-Bank, including a Blue Account you opened in early November.\n\n**Your situation:** Days after you opened the Blue Account, a $12 monthly maintenance fee appeared under 'updated account terms' - nobody told you about it. You moved your money out and left exactly $25 in the account. You heard there may be an early closure fee and think it should be waived since the bank changed the terms.\n\n**Your goal:** Close your new Blue Account, ideally without paying an early closure fee.\n\n**Information you know and should provide when asked:**\n- Your full name: Jordan Mitchell\n- Your phone number: 303-555-0847\n- Your email: jordan.mitchell@outlook.com\n- Your date of birth: 08/22/1989\n- Your address: 4521 Mountain View Drive, Denver, CO 80202\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, I opened a Blue checking account at the start of the month and you've already started charging me a monthly fee I was never told about. I want to close it, and I don't think I should have to pay an early closure fee.\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If asked about the balance: \"I left $25 in it in case there's a fee.\"\n4. If the agent says the fee can't be waived, accept reluctantly: \"Fine, go ahead and close it anyway.\"\n5. If the account is closed, thank the agent and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": {
+        "accounts": {
+          "data": {
+            "38a2c5f77504be6c": {
+              "current_holdings": "25.00"
+            }
+          }
+        },
+        "bank_account_transaction_history": {
+          "data": {
+            "btxn_r10t_1": {
+              "transaction_id": "btxn_r10t_1",
+              "account_id": "38a2c5f77504be6c",
+              "date": "11/04/2025",
+              "description": "OPENING DEPOSIT",
+              "amount": 1500.0,
+              "type": "mobile_deposit",
+              "status": "posted"
+            },
+            "btxn_r10t_2": {
+              "transaction_id": "btxn_r10t_2",
+              "account_id": "38a2c5f77504be6c",
+              "date": "11/06/2025",
+              "description": "NEW ACCOUNT BONUS - FALL CHECKING OFFER",
+              "amount": 150.0,
+              "type": "fee_rebate",
+              "status": "posted"
+            },
+            "btxn_r10t_3": {
+              "transaction_id": "btxn_r10t_3",
+              "account_id": "38a2c5f77504be6c",
+              "date": "11/10/2025",
+              "description": "MONTHLY MAINTENANCE FEE - UPDATED ACCOUNT TERMS",
+              "amount": -12.0,
+              "type": "monthly_fee",
+              "status": "posted"
+            },
+            "btxn_r10t_4": {
+              "transaction_id": "btxn_r10t_4",
+              "account_id": "38a2c5f77504be6c",
+              "date": "11/12/2025",
+              "description": "ACH TRANSFER OUT - ALLY BANK",
+              "amount": -1613.0,
+              "type": "ach_transfer_out",
+              "status": "posted"
+            }
+          }
+        }
+      },
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R10_t_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Jordan Mitchell",
+          "user_id": "jm60a8b9c2",
+          "address": "4521 Mountain View Drive, Denver, CO 80202",
+          "email": "jordan.mitchell@outlook.com",
+          "phone_number": "303-555-0847",
+          "date_of_birth": "08/22/1989",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R10_t_1",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "close_bank_account_7392"
+        }
+      },
+      {
+        "action_id": "task_R10_t_2",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "close_bank_account_7392",
+          "arguments": "{\"account_id\": \"38a2c5f77504be6c\", \"waive_early_closure_fee\": false}"
+        }
+      }
+    ],
+    "reward_basis": [
+      "DB"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_bank_accounts_bank_accounts_(general)_005",
+    "doc_bank_accounts_operational_update_903",
+    "doc_bank_accounts_bank_accounts_(general)_009",
+    "doc_bank_accounts_bank_accounts_(general)_018"
+  ]
+}

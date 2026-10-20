@@ -1,0 +1,80 @@
+{
+  "id": "task_R20_c",
+  "description": {
+    "purpose": "Planted rule R20 (control)",
+    "relevant_policies": null,
+    "notes": "R20 (near_duplicate), control task. Trigger: first-time interest charge reversal on an EcoCard above the $30 maximum (vs $60 on Crypto-Cash Back). The rule nearly applies but does not; applying it is wrong."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Fatima Al-Hassan, a 35-year-old pharmacist. You have several Rho-Bank credit cards, including a Crypto-Cash Back card.\n\n**Your situation:** You've always paid your Crypto-Cash Back card in full, but last month you only made a partial payment by mistake and were charged $44.80 in interest on 11/03/2025. It's the first time you've ever been charged interest on the card.\n\n**Your goal:** Get the interest charge on your Crypto-Cash Back card removed.\n\n**Information you know and should provide when asked:**\n- Your full name: Fatima Al-Hassan\n- Your phone number: 313-555-0246\n- Your email: coffeelover_fati@protonmail.com\n- Your date of birth: 12/05/1993\n- Your address: 1923 Oak Park Boulevard, Detroit, MI 48226\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, I was charged $44.80 in interest on my Crypto-Cash Back card this month. I always pay in full - I just made a mistake with last month's payment. Can you take the interest off?\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If the agent says only part of it can be reversed, accept it.\n4. Once the credit is applied, thank the agent and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": {
+        "credit_card_transaction_history": {
+          "data": {
+            "txn_r20c_int": {
+              "transaction_id": "txn_r20c_int",
+              "user_id": "890389b165",
+              "credit_card_type": "Crypto-Cash Back",
+              "merchant_name": "INTEREST CHARGE - PURCHASES",
+              "transaction_amount": "$44.80",
+              "transaction_date": "11/03/2025",
+              "category": "Fees",
+              "status": "COMPLETED",
+              "rewards_earned": "0 points"
+            }
+          }
+        }
+      },
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R20_c_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Fatima Al-Hassan",
+          "user_id": "890389b165",
+          "address": "1923 Oak Park Boulevard, Detroit, MI 48226",
+          "email": "coffeelover_fati@protonmail.com",
+          "phone_number": "313-555-0246",
+          "date_of_birth": "12/05/1993",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R20_c_1",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "apply_statement_credit_8472"
+        }
+      },
+      {
+        "action_id": "task_R20_c_2",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "apply_statement_credit_8472",
+          "arguments": "{\"user_id\": \"890389b165\", \"credit_card_account_id\": \"cc_890389b165_crypto\", \"amount\": 44.8, \"reason\": \"interest_charge_reversal\"}"
+        }
+      }
+    ],
+    "reward_basis": [
+      "DB"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_credit_cards_crypto-cash_back_008",
+    "doc_credit_cards_credit_cards_(general)_017"
+  ]
+}

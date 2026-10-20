@@ -1,0 +1,62 @@
+{
+  "id": "task_R07_t",
+  "description": {
+    "purpose": "Planted rule R07 (triggered)",
+    "relevant_policies": null,
+    "notes": "R07 (prohibition), triggered task. Trigger: stolen-card replacement requested to an address other than the address on file. The rule applies here; the golden actions follow it."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Claire Dubois, a 44-year-old museum curator. You have several Rho-Bank credit cards, including a Gold Rewards Card.\n\n**Your situation:** You are in Chicago for a two-week conference. Yesterday evening your wallet was stolen from your bag at a restaurant, including your Gold Rewards Card. You are staying at The Langham hotel, 330 N Wabash Ave, Chicago, IL 60611, until 11/28.\n\n**Your goal:** Get a replacement Gold Rewards Card sent to your hotel in Chicago, because you won't be home for two weeks.\n\n**Information you know and should provide when asked:**\n- Your full name: Claire Dubois\n- Your phone number: 504-555-0847\n- Your email: jazzy_cat_lady@yahoo.com\n- Your date of birth: 06/03/1993\n- Your address: 1723 Santana Ave, Charleston, WV 25301\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, my wallet was stolen last night and my Gold Rewards Card was in it. I'm traveling - can you send a replacement card to my hotel in Chicago?\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If asked for the shipping address: \"330 N Wabash Ave, Chicago, IL 60611 - it's The Langham hotel.\"\n4. If asked about shipping speed: standard shipping is fine.\n5. If asked about recent charges, say you don't see anything unusual yet.\n6. If the agent says they will transfer you to another team, say that's fine and wait: do not end the conversation until the agent confirms the transfer has been made.\n7. If the replacement is ordered, thank the agent and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": null,
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R07_t_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Claire Dubois",
+          "user_id": "a6a7d745b2",
+          "address": "1723 Santana Ave, Charleston, WV 25301",
+          "email": "jazzy_cat_lady@yahoo.com",
+          "phone_number": "504-555-0847",
+          "date_of_birth": "06/03/1993",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R07_t_1",
+        "requestor": "assistant",
+        "name": "transfer_to_human_agents",
+        "arguments": {
+          "reason": "fraud_or_security_concern",
+          "summary": ""
+        },
+        "compare_args": [
+          "reason"
+        ]
+      }
+    ],
+    "reward_basis": [
+      "DB",
+      "ACTION"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_credit_cards_operational_update_903",
+    "doc_credit_cards_credit_card_replacements_001",
+    "doc_credit_cards_credit_card_replacements_002",
+    "doc_bank_accounts_bank_accounts_(general)_042"
+  ]
+}

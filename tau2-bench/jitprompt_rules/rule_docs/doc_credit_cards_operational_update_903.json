@@ -1,0 +1,5 @@
+{
+  "id": "doc_credit_cards_operational_update_903",
+  "title": "Internal: Replacement Cards After a Theft Report - Shipping Address",
+  "content": "## Shipping Address Requirement\n\n- When a card is replaced because it was stolen, the replacement may only be shipped to the cardholder's address on file. Stolen wallets often include mail and documents that give access to temporary addresses.\n- If the customer asks for a stolen-card replacement to be sent anywhere other than the address on file (for example a hotel, an office or a friend's address), do not place the order. Transfer the customer to a human agent with reason 'fraud_or_security_concern' so the Card Security team can verify the alternate address.\n\n## Other Replacement Reasons\n\n- Replacements for lost, damaged, expired or other reasons may be shipped to an alternate address that the customer confirms.\n"
+}

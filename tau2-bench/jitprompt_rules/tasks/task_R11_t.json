@@ -1,0 +1,94 @@
+{
+  "id": "task_R11_t",
+  "description": {
+    "purpose": "Planted rule R11 (triggered)",
+    "relevant_policies": null,
+    "notes": "R11 (exception), triggered task. Trigger: missing intro APR on a new Silver Rewards Card for a Rho-Bank Plus subscriber. The rule applies here; the golden actions follow it."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Jordan Lee, a 35-year-old account manager. You opened a Silver Rewards Card with Rho-Bank in October.\n\n**Your situation:** You signed up for the Silver Rewards Card because of the 0% intro APR offer, but your latest statement shows an interest charge, so the promotional rate doesn't seem to be on your account.\n\n**Your goal:** Get the 0% introductory APR set up correctly on your Silver Rewards Card.\n\n**Information you know and should provide when asked:**\n- Your full name: Jordan Lee\n- Your phone number: 303-555-0472\n- Your email: jordan.lee@gmail.com\n- Your date of birth: 05/22/1990\n- Your address: 1847 Pearl Street, Denver, CO 80203\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, I opened a Silver Rewards Card in October with the 0% intro APR, but I just got charged interest. I don't think the promo rate was ever applied to my account.\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If asked when you opened the card: \"On October 20th.\"\n4. If the agent applies the promotional rate, thank them. If they offer to also refund the interest charge, accept.\n5. Once the promotional rate is applied, end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": {
+        "credit_card_accounts": {
+          "data": {
+            "cc_jl72b4e9d1_silver": {
+              "account_id": "cc_jl72b4e9d1_silver",
+              "user_id": "jl72b4e9d1",
+              "card_type": "Silver Rewards Card",
+              "status": "ACTIVE",
+              "date_of_account_open": "10/20/2025",
+              "current_balance": "$1,240.60",
+              "reward_points": "1180 points"
+            }
+          }
+        },
+        "credit_card_transaction_history": {
+          "data": {
+            "txn_r11t_int": {
+              "transaction_id": "txn_r11t_int",
+              "user_id": "jl72b4e9d1",
+              "credit_card_type": "Silver Rewards Card",
+              "merchant_name": "INTEREST CHARGE - PURCHASES",
+              "transaction_amount": "$18.42",
+              "transaction_date": "11/03/2025",
+              "category": "Fees",
+              "status": "COMPLETED",
+              "rewards_earned": "0 points"
+            }
+          }
+        }
+      },
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R11_t_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Jordan Lee",
+          "user_id": "jl72b4e9d1",
+          "address": "1847 Pearl Street, Denver, CO 80203",
+          "email": "jordan.lee@gmail.com",
+          "phone_number": "303-555-0472",
+          "date_of_birth": "05/22/1990",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R11_t_1",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "apply_credit_card_account_flag_6147"
+        }
+      },
+      {
+        "action_id": "task_R11_t_2",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "apply_credit_card_account_flag_6147",
+          "arguments": "{\"credit_card_account_id\": \"cc_jl72b4e9d1_silver\", \"user_id\": \"jl72b4e9d1\", \"flag_type\": \"promotional_apr\", \"expiration_date\": \"01/20/2027\", \"reason\": \"promotional\"}"
+        }
+      }
+    ],
+    "reward_basis": [
+      "DB"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_credit_cards_silver_rewards_card_009",
+    "doc_credit_cards_operational_update_905",
+    "doc_credit_cards_credit_card_account_logistics_003"
+  ]
+}

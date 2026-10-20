@@ -1,0 +1,64 @@
+{
+  "id": "task_R21_c",
+  "description": {
+    "purpose": "Planted rule R21 (control)",
+    "relevant_policies": null,
+    "notes": "R21 (ordering), control task. Trigger: replacement for a stolen card: review recent transactions before ordering. The rule nearly applies but does not; applying it is wrong."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Fatima Al-Hassan, a 35-year-old pharmacist. You have several Rho-Bank credit cards, including a Silver Rewards Card.\n\n**Your situation:** You lost your Silver Rewards Card somewhere over the weekend - you think it fell out of your pocket at the park. You are at home and want the replacement sent to your address on file.\n\n**Your goal:** Replace your lost Silver Rewards Card.\n\n**Information you know and should provide when asked:**\n- Your full name: Fatima Al-Hassan\n- Your phone number: 313-555-0246\n- Your email: coffeelover_fati@protonmail.com\n- Your date of birth: 12/05/1993\n- Your address: 1923 Oak Park Boulevard, Detroit, MI 48226\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, I lost my Silver Rewards Card over the weekend. I need to cancel it and get a new one.\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. Confirm your address on file as the shipping address.\n4. If asked about shipping speed: standard shipping is fine.\n5. If the agent goes through recent charges with you, say you recognize all of them.\n6. Once the replacement is ordered, thank the agent and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": null,
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R21_c_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Fatima Al-Hassan",
+          "user_id": "890389b165",
+          "address": "1923 Oak Park Boulevard, Detroit, MI 48226",
+          "email": "coffeelover_fati@protonmail.com",
+          "phone_number": "313-555-0246",
+          "date_of_birth": "12/05/1993",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R21_c_1",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "order_replacement_credit_card_7291"
+        }
+      },
+      {
+        "action_id": "task_R21_c_2",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "order_replacement_credit_card_7291",
+          "arguments": "{\"credit_card_account_id\": \"cc_890389b165_silver\", \"user_id\": \"890389b165\", \"shipping_address\": \"1923 Oak Park Boulevard, Detroit, MI 48226\", \"reason\": \"lost\", \"expedited_shipping\": false}"
+        }
+      }
+    ],
+    "reward_basis": [
+      "DB"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_credit_cards_credit_card_replacements_001",
+    "doc_credit_cards_credit_card_replacements_002"
+  ]
+}

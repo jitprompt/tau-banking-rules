@@ -1,0 +1,111 @@
+{
+  "id": "task_R19_t",
+  "description": {
+    "purpose": "Planted rule R19 (triggered)",
+    "relevant_policies": null,
+    "notes": "R19 (near_duplicate), triggered task. Trigger: goodwill credit for late interest posting on a Silver Plus savings account ($15, vs $10 on Silver). The rule applies here; the golden actions follow it."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Kim Junho, a 30-year-old nurse. You have three checking accounts and a Silver Plus savings account with Rho-Bank.\n\n**Your situation:** Your savings interest usually shows up on the first business day of the month, but this month it only arrived on 11/07/2025. You were counting on it for a bill and had to move money around.\n\n**Your goal:** Report the late interest payment on your savings account and see if the bank can do anything about the inconvenience.\n\n**Information you know and should provide when asked:**\n- Your full name: Kim Junho\n- Your phone number: 213-555-0392\n- Your email: junho.kim@gmail.com\n- Your date of birth: 09/14/1994\n- Your address: 5847 Wilshire Boulevard, Los Angeles, CA 90036\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, my savings account interest came almost a week late this month. It's usually there on the first business day. That messed up my plans a bit - can you look into it?\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If asked which account: your Silver Plus savings account.\n4. If the agent offers a credit for the inconvenience, accept it.\n5. Once the agent is done, thank them and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": {
+        "accounts": {
+          "data": {
+            "sav_kj93a7b2e1": {
+              "account_id": "sav_kj93a7b2e1",
+              "user_id": "kj93a7b2e1",
+              "class": "saving",
+              "level": "Silver Plus Account",
+              "date_opened": "05/01/2024",
+              "status": "OPEN",
+              "current_holdings": "8412.37"
+            }
+          }
+        },
+        "bank_account_transaction_history": {
+          "data": {
+            "btxn_r19t_1": {
+              "transaction_id": "btxn_r19t_1",
+              "account_id": "sav_kj93a7b2e1",
+              "date": "09/02/2025",
+              "description": "INTEREST PAYMENT",
+              "amount": 11.84,
+              "type": "interest_credit",
+              "status": "posted"
+            },
+            "btxn_r19t_2": {
+              "transaction_id": "btxn_r19t_2",
+              "account_id": "sav_kj93a7b2e1",
+              "date": "10/01/2025",
+              "description": "INTEREST PAYMENT",
+              "amount": 11.52,
+              "type": "interest_credit",
+              "status": "posted"
+            },
+            "btxn_r19t_3": {
+              "transaction_id": "btxn_r19t_3",
+              "account_id": "sav_kj93a7b2e1",
+              "date": "11/07/2025",
+              "description": "INTEREST PAYMENT - DELAYED PROCESSING",
+              "amount": 11.96,
+              "type": "interest_credit",
+              "status": "posted"
+            }
+          }
+        }
+      },
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R19_t_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Kim Junho",
+          "user_id": "kj93a7b2e1",
+          "address": "5847 Wilshire Boulevard, Los Angeles, CA 90036",
+          "email": "junho.kim@gmail.com",
+          "phone_number": "213-555-0392",
+          "date_of_birth": "09/14/1994",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R19_t_1",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "apply_savings_account_credit_6831"
+        }
+      },
+      {
+        "action_id": "task_R19_t_2",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "apply_savings_account_credit_6831",
+          "arguments": "{\"account_id\": \"sav_kj93a7b2e1\", \"amount\": 15.0, \"credit_type\": \"goodwill_credit\"}"
+        }
+      }
+    ],
+    "reward_basis": [
+      "DB"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_bank_accounts_operational_update_906",
+    "doc_bank_accounts_bank_accounts_(general)_009",
+    "doc_bank_accounts_bank_accounts_(general)_018",
+    "doc_bank_accounts_bank_accounts_(general)_043"
+  ]
+}

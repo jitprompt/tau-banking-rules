@@ -1,0 +1,7 @@
+tier,position_tercile,n_triggered_runs,adherence
+S,1,6,0.833
+S,2,14,0.857
+S,3,26,0.769
+XL,1,16,0.188
+XL,2,0,
+XL,3,30,0.667

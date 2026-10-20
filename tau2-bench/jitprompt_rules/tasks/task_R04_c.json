@@ -1,0 +1,82 @@
+{
+  "id": "task_R04_c",
+  "description": {
+    "purpose": "Planted rule R04 (control)",
+    "relevant_policies": null,
+    "notes": "R04 (threshold), control task. Trigger: second expedited replacement on the same account within 12 months. The rule nearly applies but does not; applying it is wrong."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Priya Sharma, a 38-year-old consultant. You have a Gold Rewards Card with Rho-Bank.\n\n**Your situation:** The chip on your Gold Rewards Card stopped working and terminals keep rejecting it. You use the card for work expenses, so you want the replacement as fast as possible.\n\n**Your goal:** Order a replacement for your damaged Gold Rewards Card, with expedited shipping if possible.\n\n**Information you know and should provide when asked:**\n- Your full name: Priya Sharma\n- Your phone number: 312-555-0481\n- Your email: sparkle_queen_99@yahoo.com\n- Your date of birth: 11/03/1990\n- Your address: 562 Riverside Drive, Chicago, IL 60611\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, the chip on my Gold Rewards Card stopped working and I need a replacement. Can you send it with expedited shipping? I use it for work every day.\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If asked about the reason: the card is damaged (chip not working).\n4. If asked which card, it is the Gold Rewards Card.\n5. Confirm your address on file as the shipping address.\n6. If the agent says expedited shipping is not available this time, accept: \"Okay, standard shipping is fine then.\"\n7. Once the replacement is ordered, thank the agent and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": {
+        "credit_card_orders": {
+          "data": {
+            "ccord_af0581dcbf_gold_001": {
+              "order_id": "ccord_af0581dcbf_gold_001",
+              "credit_card_account_id": "cc_af0581dcbf_gold",
+              "user_id": "af0581dcbf",
+              "shipping_address": "562 Riverside Drive, Chicago, IL 60611",
+              "reason": "lost",
+              "expedited_shipping": true,
+              "order_date": "08/20/2024",
+              "expected_delivery": "08/23/2024",
+              "status": "DELIVERED"
+            }
+          }
+        }
+      },
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R04_c_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Priya Sharma",
+          "user_id": "af0581dcbf",
+          "address": "562 Riverside Drive, Chicago, IL 60611",
+          "email": "sparkle_queen_99@yahoo.com",
+          "phone_number": "312-555-0481",
+          "date_of_birth": "11/03/1990",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R04_c_1",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "order_replacement_credit_card_7291"
+        }
+      },
+      {
+        "action_id": "task_R04_c_2",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "order_replacement_credit_card_7291",
+          "arguments": "{\"credit_card_account_id\": \"cc_af0581dcbf_gold\", \"user_id\": \"af0581dcbf\", \"shipping_address\": \"562 Riverside Drive, Chicago, IL 60611\", \"reason\": \"damaged\", \"expedited_shipping\": true}"
+        }
+      }
+    ],
+    "reward_basis": [
+      "DB"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_credit_cards_operational_update_902",
+    "doc_credit_cards_credit_card_replacements_001",
+    "doc_credit_cards_credit_card_replacements_002",
+    "doc_credit_cards_credit_card_replacements_005"
+  ]
+}

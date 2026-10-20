@@ -1,0 +1,5 @@
+{
+  "id": "doc_credit_cards_operational_update_911",
+  "title": "Internal: Loyalty Annual Fee Waivers - Payment Review",
+  "content": "## Before Granting a Loyalty Waiver\n\n- Before applying an annual fee waiver as a loyalty benefit (reason 'loyalty_benefit'), review the account's last 12 months of payments with get_payment_history_6183 (months: 12).\n- If any payment in that period was MISSED, do not apply the waiver; continue with the standard closure process.\n- Otherwise, apply the waiver as described in the retention protocol.\n"
+}

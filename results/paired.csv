@@ -1,0 +1,22 @@
+comparison,primary,n_pairs,adherence_a,adherence_b,diff,only_a,only_b,both,neither,mcnemar_p
+jitprompt@XL vs full_prompt@XL,1,46,0.674,0.5,0.174,8,0,23,15,0.008
+jitprompt@S vs rag_bm25@S,0,46,0.848,0.804,0.043,6,4,33,3,0.754
+rag_bm25@S vs full_prompt@S,0,46,0.804,0.804,0.0,5,5,32,4,1.0
+jitprompt@XL vs rag_bm25@XL,0,46,0.674,0.674,0.0,4,4,27,11,1.0
+rag_bm25@XL vs full_prompt@XL,0,46,0.674,0.5,0.174,10,2,21,13,0.039
+jitprompt@S vs full_prompt@S,0,46,0.848,0.804,0.043,7,5,32,2,0.774
+full_prompt@S vs full_prompt@XL,0,46,0.804,0.5,0.304,16,2,21,7,0.001
+rag_bm25@S vs rag_bm25@XL,0,46,0.804,0.674,0.13,9,3,28,6,0.146
+jitprompt@S vs jitprompt@XL,0,46,0.848,0.674,0.174,10,2,29,5,0.039
+jitprompt_action@XL vs full_prompt@XL,0,46,0.652,0.5,0.152,9,2,21,14,0.065
+jitprompt_action@XL vs rag_bm25@XL,0,46,0.652,0.674,-0.022,6,7,24,9,1.0
+jitprompt_action@XL vs jitprompt@XL,0,46,0.652,0.674,-0.022,5,6,25,10,1.0
+jitprompt_pinned@XL vs full_prompt@XL,0,46,0.826,0.5,0.326,16,1,22,7,0.0
+jitprompt_pinned@XL vs rag_bm25@XL,0,46,0.826,0.674,0.152,8,1,30,7,0.039
+jitprompt_pinned@XL vs jitprompt@XL,0,46,0.826,0.674,0.152,9,2,29,6,0.065
+jitprompt_sysprompt@XL vs full_prompt@XL,0,46,0.717,0.5,0.217,13,3,20,10,0.021
+jitprompt_sysprompt@XL vs rag_bm25@XL,0,46,0.717,0.674,0.043,7,5,26,8,0.774
+jitprompt_sysprompt@XL vs jitprompt@XL,0,46,0.717,0.674,0.043,8,6,25,7,0.791
+jitprompt_inband@XL vs full_prompt@XL,0,46,0.848,0.5,0.348,17,1,22,6,0.0
+jitprompt_inband@XL vs rag_bm25@XL,0,46,0.848,0.674,0.174,10,2,29,5,0.039
+jitprompt_inband@XL vs jitprompt@XL,0,46,0.848,0.674,0.174,9,1,30,6,0.021

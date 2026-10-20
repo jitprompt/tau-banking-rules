@@ -1,0 +1,66 @@
+{
+  "id": "task_R22_c",
+  "description": {
+    "purpose": "Planted rule R22 (control)",
+    "relevant_policies": null,
+    "notes": "R22 (ordering), control task. Trigger: transfer above $5,000 between accounts: review source-account activity first. The rule nearly applies but does not; applying it is wrong."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Kim Junho, a 30-year-old nurse. You have three checking accounts with Rho-Bank: a Blue Account, a Green Account and a Light Green Account.\n\n**Your situation:** You want to move $3,000 from your Green Account into your Blue Account, which you use for bills, ahead of a move to a new apartment.\n\n**Your goal:** Move $3,000 from your Green Account to your Blue Account.\n\n**Information you know and should provide when asked:**\n- Your full name: Kim Junho\n- Your phone number: 213-555-0392\n- Your email: junho.kim@gmail.com\n- Your date of birth: 09/14/1994\n- Your address: 5847 Wilshire Boulevard, Los Angeles, CA 90036\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, I'd like to move $3,000 from my Green checking account into my Blue account.\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If asked what it's for: \"I'm moving apartments - deposit, movers, furniture.\"\n4. If the agent asks about recent activity on the account, say it all looks normal to you.\n5. Once the transfer is done, thank the agent and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": null,
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R22_c_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Kim Junho",
+          "user_id": "kj93a7b2e1",
+          "address": "5847 Wilshire Boulevard, Los Angeles, CA 90036",
+          "email": "junho.kim@gmail.com",
+          "phone_number": "213-555-0392",
+          "date_of_birth": "09/14/1994",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R22_c_1",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "transfer_funds_between_bank_accounts_7291"
+        }
+      },
+      {
+        "action_id": "task_R22_c_2",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "transfer_funds_between_bank_accounts_7291",
+          "arguments": "{\"source_account_id\": \"chk_kj93a7b2e1_2\", \"destination_account_id\": \"chk_kj93a7b2e1_1\", \"amount\": 3000.0}"
+        }
+      }
+    ],
+    "reward_basis": [
+      "DB"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_bank_accounts_operational_update_908",
+    "doc_bank_accounts_bank_accounts_(general)_009",
+    "doc_bank_accounts_bank_accounts_(general)_010",
+    "doc_bank_accounts_bank_accounts_(general)_018"
+  ]
+}

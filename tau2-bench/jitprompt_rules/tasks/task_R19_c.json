@@ -1,0 +1,98 @@
+{
+  "id": "task_R19_c",
+  "description": {
+    "purpose": "Planted rule R19 (control)",
+    "relevant_policies": null,
+    "notes": "R19 (near_duplicate), control task. Trigger: goodwill credit for late interest posting on a Silver Plus savings account ($15, vs $10 on Silver). The rule nearly applies but does not; applying it is wrong."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Ayan Wang, a 34-year-old high school teacher. You have a Green Account (checking) and a Silver savings account with Rho-Bank.\n\n**Your situation:** Your savings interest usually shows up on the first business day of the month, but this month it only arrived on 11/07/2025. You were counting on it for a bill and had to move money around.\n\n**Your goal:** Report the late interest payment on your savings account and see if the bank can do anything about the inconvenience.\n\n**Information you know and should provide when asked:**\n- Your full name: Ayan Wang\n- Your phone number: 920-029-2039\n- Your email: ayan.wang@gmail.com\n- Your date of birth: 02/23/1998\n- Your address: 2793 Frum Street, Nashville, TN\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, my savings account interest came almost a week late this month. It's usually there on the first business day. That messed up my plans a bit - can you look into it?\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If asked which account: your Silver savings account.\n4. If the agent offers a credit for the inconvenience, accept it.\n5. Once the agent is done, thank them and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": {
+        "bank_account_transaction_history": {
+          "data": {
+            "btxn_r19c_1": {
+              "transaction_id": "btxn_r19c_1",
+              "account_id": "04",
+              "date": "09/02/2025",
+              "description": "INTEREST PAYMENT",
+              "amount": 1.27,
+              "type": "interest_credit",
+              "status": "posted"
+            },
+            "btxn_r19c_2": {
+              "transaction_id": "btxn_r19c_2",
+              "account_id": "04",
+              "date": "10/01/2025",
+              "description": "INTEREST PAYMENT",
+              "amount": 1.23,
+              "type": "interest_credit",
+              "status": "posted"
+            },
+            "btxn_r19c_3": {
+              "transaction_id": "btxn_r19c_3",
+              "account_id": "04",
+              "date": "11/07/2025",
+              "description": "INTEREST PAYMENT - DELAYED PROCESSING",
+              "amount": 1.29,
+              "type": "interest_credit",
+              "status": "posted"
+            }
+          }
+        }
+      },
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R19_c_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Ayan Wang",
+          "user_id": "125",
+          "address": "2793 Frum Street, Nashville, TN",
+          "email": "ayan.wang@gmail.com",
+          "phone_number": "920-029-2039",
+          "date_of_birth": "02/23/1998",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R19_c_1",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "apply_savings_account_credit_6831"
+        }
+      },
+      {
+        "action_id": "task_R19_c_2",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "apply_savings_account_credit_6831",
+          "arguments": "{\"account_id\": \"04\", \"amount\": 10.0, \"credit_type\": \"goodwill_credit\"}"
+        }
+      }
+    ],
+    "reward_basis": [
+      "DB"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_bank_accounts_operational_update_907",
+    "doc_bank_accounts_bank_accounts_(general)_009",
+    "doc_bank_accounts_bank_accounts_(general)_018",
+    "doc_bank_accounts_bank_accounts_(general)_043"
+  ]
+}

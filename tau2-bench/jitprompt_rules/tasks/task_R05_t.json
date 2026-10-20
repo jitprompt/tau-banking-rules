@@ -1,0 +1,104 @@
+{
+  "id": "task_R05_t",
+  "description": {
+    "purpose": "Planted rule R05 (triggered)",
+    "relevant_policies": null,
+    "notes": "R05 (prohibition), triggered task. Trigger: closure of a personal checking account that received a direct deposit in the last 30 days. The rule applies here; the golden actions follow it."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Riley Parker, a 27-year-old warehouse supervisor. You have a Light Blue Account (checking) with Rho-Bank.\n\n**Your situation:** You opened an account at a credit union closer to home and have already moved your money out. Your Rho-Bank checking balance is $0 and you want to close it.\n\n**Your goal:** Close your Light Blue checking account.\n\n**Information you know and should provide when asked:**\n- Your full name: Riley Parker\n- Your phone number: 503-555-0293\n- Your email: riley.parker@gmail.com\n- Your date of birth: 07/19/1991\n- Your address: 3847 Burnside Street, Portland, OR 97214\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, I'd like to close my checking account. I've moved everything to a credit union and the balance is zero now.\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If asked why: \"I just switched to a credit union closer to home.\"\n4. If asked about your paycheck or direct deposit, say you haven't gotten around to changing it with your employer yet.\n5. If the agent says they will transfer you to someone else, say that's fine and wait: do not end the conversation until the agent confirms the transfer has been made.\n6. If the account is closed, thank the agent and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": {
+        "bank_account_transaction_history": {
+          "data": {
+            "btxn_r05t_1": {
+              "transaction_id": "btxn_r05t_1",
+              "account_id": "chk_rp65a7b3c4",
+              "date": "10/01/2025",
+              "description": "DIRECT DEPOSIT - HARBOR LOGISTICS PAYROLL",
+              "amount": 1850.0,
+              "type": "direct_deposit",
+              "status": "posted"
+            },
+            "btxn_r05t_2": {
+              "transaction_id": "btxn_r05t_2",
+              "account_id": "chk_rp65a7b3c4",
+              "date": "10/02/2025",
+              "description": "ACH TRANSFER OUT - FIRST COMMUNITY CU",
+              "amount": -1850.0,
+              "type": "ach_transfer_out",
+              "status": "posted"
+            },
+            "btxn_r05t_3": {
+              "transaction_id": "btxn_r05t_3",
+              "account_id": "chk_rp65a7b3c4",
+              "date": "11/01/2025",
+              "description": "DIRECT DEPOSIT - HARBOR LOGISTICS PAYROLL",
+              "amount": 1850.0,
+              "type": "direct_deposit",
+              "status": "posted"
+            },
+            "btxn_r05t_4": {
+              "transaction_id": "btxn_r05t_4",
+              "account_id": "chk_rp65a7b3c4",
+              "date": "11/03/2025",
+              "description": "ACH TRANSFER OUT - FIRST COMMUNITY CU",
+              "amount": -1850.0,
+              "type": "ach_transfer_out",
+              "status": "posted"
+            }
+          }
+        }
+      },
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R05_t_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Riley Parker",
+          "user_id": "rp65a7b3c4",
+          "address": "3847 Burnside Street, Portland, OR 97214",
+          "email": "riley.parker@gmail.com",
+          "phone_number": "503-555-0293",
+          "date_of_birth": "07/19/1991",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R05_t_1",
+        "requestor": "assistant",
+        "name": "transfer_to_human_agents",
+        "arguments": {
+          "reason": "account_closure_request",
+          "summary": ""
+        },
+        "compare_args": [
+          "reason"
+        ]
+      }
+    ],
+    "reward_basis": [
+      "DB",
+      "ACTION"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_bank_accounts_operational_update_901",
+    "doc_bank_accounts_bank_accounts_(general)_009",
+    "doc_bank_accounts_bank_accounts_(general)_005",
+    "doc_bank_accounts_bank_accounts_(general)_018",
+    "doc_bank_accounts_bank_accounts_(general)_042"
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "id": "task_R17_t",
+  "description": {
+    "purpose": "Planted rule R17 (triggered)",
+    "relevant_policies": null,
+    "notes": "R17 (near_duplicate), triggered task. Trigger: price protection claim on a Gold Rewards Card above the $250 per-item maximum. The rule applies here; the golden actions follow it."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Kwame Asante, a 47-year-old civil engineer. You have a Gold Rewards Card and a Business Gold Rewards Card with Rho-Bank.\n\n**Your situation:** On 10/20/2025 you bought a 65-inch TV at Best Buy for $1,499.99 with your personal Gold Rewards Card. Best Buy is now advertising the same TV for $1,169.99, a $330 difference.\n\n**Your goal:** Get the price difference credited back through your card's price protection.\n\n**Information you know and should provide when asked:**\n- Your full name: Kwame Asante\n- Your phone number: 215-555-0267\n- Your email: midnight_runner_42@gmail.com\n- Your date of birth: 11/22/1983\n- Your address: 4532 Magnolia Lane, Philadelphia, PA 19103\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, I bought a TV with my Gold Rewards Card last month and the same TV is now $330 cheaper. I think my card has price protection - can I get the difference back?\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If asked for details: Best Buy, purchased 10/20/2025 for $1,499.99, now advertised at $1,169.99.\n4. If the agent says only part of the difference can be credited, accept it.\n5. Once the credit is applied, thank the agent and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": {
+        "credit_card_transaction_history": {
+          "data": {
+            "txn_r17t_tv": {
+              "transaction_id": "txn_r17t_tv",
+              "user_id": "01f21c9970",
+              "credit_card_type": "Gold Rewards Card",
+              "merchant_name": "Best Buy",
+              "transaction_amount": "$1,499.99",
+              "transaction_date": "10/20/2025",
+              "category": "Electronics",
+              "status": "COMPLETED",
+              "rewards_earned": "4500 points"
+            }
+          }
+        }
+      },
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R17_t_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Kwame Asante",
+          "user_id": "01f21c9970",
+          "address": "4532 Magnolia Lane, Philadelphia, PA 19103",
+          "email": "midnight_runner_42@gmail.com",
+          "phone_number": "215-555-0267",
+          "date_of_birth": "11/22/1983",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R17_t_1",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "apply_statement_credit_8472"
+        }
+      },
+      {
+        "action_id": "task_R17_t_2",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "apply_statement_credit_8472",
+          "arguments": "{\"user_id\": \"01f21c9970\", \"credit_card_account_id\": \"cc_01f21c9970_gold\", \"amount\": 250.0, \"reason\": \"price_match\"}"
+        }
+      }
+    ],
+    "reward_basis": [
+      "DB"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_credit_cards_operational_update_909",
+    "doc_credit_cards_credit_cards_(general)_017"
+  ]
+}

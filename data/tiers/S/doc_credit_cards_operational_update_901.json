@@ -1,0 +1,5 @@
+{
+  "id": "doc_credit_cards_operational_update_901",
+  "title": "Internal: Courtesy Adjustments for Late Payment Fees",
+  "content": "## Overview\n\nCardholders who were charged a late payment fee may ask for it to be removed. Agents may grant one courtesy adjustment per credit card account in any rolling 12-month period.\n\n## Eligibility\n\n- The late payment fee posted within the last 60 days.\n- No courtesy late fee adjustment was applied to the same account in the past 12 months. Prior adjustments appear in the card's transaction history as a Rho-Bank Statement Credit.\n- The account is not closed.\n\n## Adjustment Amount\n\n- Standard: credit the full amount of the late payment fee.\n- Bronze Rewards Card: courtesy adjustments are limited to $25.00 per request. When the fee is higher than $25.00, credit $25.00.\n\n## Processing\n\n1. Locate the fee in the customer's credit card transactions.\n2. Confirm eligibility as described above.\n3. Apply the adjustment with apply_statement_credit_8472, reason 'late_fee_reversal', amount as determined above.\n4. Let the customer know the credit will appear on their next statement.\n"
+}

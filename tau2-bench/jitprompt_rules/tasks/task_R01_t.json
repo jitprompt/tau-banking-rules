@@ -1,0 +1,80 @@
+{
+  "id": "task_R01_t",
+  "description": {
+    "purpose": "Planted rule R01 (triggered)",
+    "relevant_policies": null,
+    "notes": "R01 (threshold), triggered task. Trigger: courtesy late fee reversal on a Bronze Rewards Card where the fee ($32.50) exceeds $25. The rule applies here; the golden actions follow it."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Zhang Mei, a 41-year-old pharmacist. You have a Bronze Rewards Card with Rho-Bank.\n\n**Your situation:** Your October payment went through two days late because you were traveling for a family emergency. A $32.50 late payment fee was charged on 11/05/2025. You have always paid on time before.\n\n**Your goal:** Get the late fee removed from your Bronze Rewards Card.\n\n**Information you know and should provide when asked:**\n- Your full name: Zhang Mei\n- Your phone number: 619-555-0756\n- Your email: meimeimeimei@icloud.com\n- Your date of birth: 01/24/1991\n- Your address: 3178 Harbor View Drive, San Diego, CA 92101\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, I was charged a late fee on my Bronze Rewards Card this month. My payment was only two days late because I was away for a family emergency. Is there any way you can remove it?\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If the agent says only part of the fee can be credited, accept it: \"Okay, I understand. Please go ahead with that.\"\n4. Once the credit is applied, thank the agent and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": {
+        "credit_card_transaction_history": {
+          "data": {
+            "txn_r01t_latefee": {
+              "transaction_id": "txn_r01t_latefee",
+              "user_id": "5e4c1a83b0",
+              "credit_card_type": "Bronze Rewards Card",
+              "merchant_name": "LATE PAYMENT FEE",
+              "transaction_amount": "$32.50",
+              "transaction_date": "11/05/2025",
+              "category": "Fees",
+              "status": "COMPLETED",
+              "rewards_earned": "0 points"
+            }
+          }
+        }
+      },
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R01_t_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Zhang Mei",
+          "user_id": "5e4c1a83b0",
+          "address": "3178 Harbor View Drive, San Diego, CA 92101",
+          "email": "meimeimeimei@icloud.com",
+          "phone_number": "619-555-0756",
+          "date_of_birth": "01/24/1991",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R01_t_1",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "apply_statement_credit_8472"
+        }
+      },
+      {
+        "action_id": "task_R01_t_2",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "apply_statement_credit_8472",
+          "arguments": "{\"user_id\": \"5e4c1a83b0\", \"credit_card_account_id\": \"cc_5e4c1a83b0_bronze\", \"amount\": 25.0, \"reason\": \"late_fee_reversal\"}"
+        }
+      }
+    ],
+    "reward_basis": [
+      "DB"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_credit_cards_operational_update_901",
+    "doc_credit_cards_credit_cards_(general)_017"
+  ]
+}

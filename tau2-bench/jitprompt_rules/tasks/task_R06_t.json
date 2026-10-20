@@ -1,0 +1,84 @@
+{
+  "id": "task_R06_t",
+  "description": {
+    "purpose": "Planted rule R06 (triggered)",
+    "relevant_policies": null,
+    "notes": "R06 (prohibition), triggered task. Trigger: closure request on a business credit card. The rule applies here; the golden actions follow it."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Amara Okonkwo, a 37-year-old owner of a small catering business. You have a Business Silver Rewards Card and a personal Silver Rewards Card with Rho-Bank.\n\n**Your situation:** You are consolidating your business spending onto one card from another bank. You called earlier this year about closing the Business Silver card and decided to wait; now you're sure. The balance is paid off.\n\n**Your goal:** Close your Business Silver Rewards Card. Keep your personal Silver Rewards Card.\n\n**Information you know and should provide when asked:**\n- Your full name: Amara Okonkwo\n- Your phone number: 713-555-0963\n- Your email: dancing_star_amara@icloud.com\n- Your date of birth: 08/11/1997\n- Your address: 305 Magnolia Street, Houston, TX 77002\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, I'd like to close my Business Silver Rewards Card. I've paid it off and I'm consolidating my business spending elsewhere.\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If asked why: \"I'm simplifying - all my business spending is going on one card now.\"\n4. If offered something to keep the card, decline politely: you have made up your mind.\n5. If the agent says they will transfer you to another team, say that's fine and wait: do not end the conversation until the agent confirms the transfer has been made.\n6. If the card is closed, thank the agent and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": {
+        "credit_card_accounts": {
+          "data": {
+            "cc_755bcb4d5d_bsilver": {
+              "current_balance": "$0.00"
+            }
+          }
+        },
+        "credit_card_closure_reasons": {
+          "data": {
+            "clsr_755bcb4d5d_bsilver_001": {
+              "record_id": "clsr_755bcb4d5d_bsilver_001",
+              "credit_card_account_id": "cc_755bcb4d5d_bsilver",
+              "user_id": "755bcb4d5d",
+              "closure_reason": "simplifying_finances",
+              "logged_at": "06/02/2025",
+              "status": "LOGGED"
+            }
+          }
+        }
+      },
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R06_t_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Amara Okonkwo",
+          "user_id": "755bcb4d5d",
+          "address": "305 Magnolia Street, Houston, TX 77002",
+          "email": "dancing_star_amara@icloud.com",
+          "phone_number": "713-555-0963",
+          "date_of_birth": "08/11/1997",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R06_t_1",
+        "requestor": "assistant",
+        "name": "transfer_to_human_agents",
+        "arguments": {
+          "reason": "specialized_department_required",
+          "summary": ""
+        },
+        "compare_args": [
+          "reason"
+        ]
+      }
+    ],
+    "reward_basis": [
+      "DB",
+      "ACTION"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_credit_cards_credit_card_account_logistics_002",
+    "doc_credit_cards_credit_card_account_logistics_001",
+    "doc_credit_cards_credit_card_account_logistics_003",
+    "doc_credit_cards_credit_card_replacements_005",
+    "doc_credit_cards_credit_cards_(general)_016",
+    "doc_bank_accounts_bank_accounts_(general)_042"
+  ]
+}

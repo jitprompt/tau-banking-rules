@@ -1,0 +1,5 @@
+{
+  "id": "doc_credit_cards_operational_update_909",
+  "title": "Gold Rewards Card: Price Protection",
+  "content": "## Coverage\n\n- If an item bought with the Gold Rewards Card is advertised at a lower price within 60 days of purchase, the cardholder can claim the difference as a statement credit.\n\n## Claim Limits\n\n- Maximum credit per item: $250.\n- Maximum of 4 claims per calendar year.\n\n## Processing (Internal)\n\n- Confirm the purchase in the customer's credit card transactions and the lower advertised price the customer reports.\n- Apply the difference, up to the per-item maximum, with apply_statement_credit_8472, reason 'price_match'.\n"
+}

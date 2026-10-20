@@ -1,0 +1,197 @@
+{
+  "id": "task_R13_c",
+  "description": {
+    "purpose": "Planted rule R13 (control)",
+    "relevant_policies": null,
+    "notes": "R13 (superseded), control task. Trigger: Platinum Rewards CLI request above $2,000 (new per-request limit, effective 10/01/2025). The rule nearly applies but does not; applying it is wrong."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Margot Bellamy, a 42-year-old interior designer. You have a Platinum Rewards Card and a Silver Zoom Card with Rho-Bank.\n\n**Your situation:** You are planning a wedding next spring and expect several large deposits to vendors. You always pay your card on time.\n\n**Your goal:** Get a $1,500 credit limit increase on your Platinum Rewards Card.\n\n**Information you know and should provide when asked:**\n- Your full name: Margot Bellamy\n- Your phone number: 303-555-0419\n- Your email: margot.bellamy@gmail.com\n- Your date of birth: 07/18/1989\n- Your address: 2847 Lavender Lane, Denver, CO 80202\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, I'd like to request a credit limit increase on my Platinum Rewards Card. I have some big wedding expenses coming up.\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If asked for the amount: \"I'd like to increase it by $1,500.\"\n4. If asked for a reason: \"Wedding vendor deposits - venue, catering and photography.\"\n5. If the agent says the most you can request is a lower amount, accept: \"Okay, let's go with that amount then.\"\n6. Once the agent tells you the decision, thank them and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": {
+        "credit_card_accounts": {
+          "data": {
+            "cc_c7d8e9f0a1_plat": {
+              "credit_limit": "$20000.00",
+              "current_balance": "$1,200.00"
+            }
+          }
+        },
+        "payment_history": {
+          "data": {
+            "pay_c7d8e9f0a1_plat_202510": {
+              "payment_id": "pay_c7d8e9f0a1_plat_202510",
+              "credit_card_account_id": "cc_c7d8e9f0a1_plat",
+              "user_id": "c7d8e9f0a1",
+              "payment_date": "10/15/2025",
+              "amount": "$250.00",
+              "status": "ON_TIME"
+            },
+            "pay_c7d8e9f0a1_plat_202509": {
+              "payment_id": "pay_c7d8e9f0a1_plat_202509",
+              "credit_card_account_id": "cc_c7d8e9f0a1_plat",
+              "user_id": "c7d8e9f0a1",
+              "payment_date": "09/15/2025",
+              "amount": "$250.00",
+              "status": "ON_TIME"
+            },
+            "pay_c7d8e9f0a1_plat_202508": {
+              "payment_id": "pay_c7d8e9f0a1_plat_202508",
+              "credit_card_account_id": "cc_c7d8e9f0a1_plat",
+              "user_id": "c7d8e9f0a1",
+              "payment_date": "08/15/2025",
+              "amount": "$250.00",
+              "status": "ON_TIME"
+            },
+            "pay_c7d8e9f0a1_plat_202507": {
+              "payment_id": "pay_c7d8e9f0a1_plat_202507",
+              "credit_card_account_id": "cc_c7d8e9f0a1_plat",
+              "user_id": "c7d8e9f0a1",
+              "payment_date": "07/15/2025",
+              "amount": "$250.00",
+              "status": "ON_TIME"
+            },
+            "pay_c7d8e9f0a1_plat_202506": {
+              "payment_id": "pay_c7d8e9f0a1_plat_202506",
+              "credit_card_account_id": "cc_c7d8e9f0a1_plat",
+              "user_id": "c7d8e9f0a1",
+              "payment_date": "06/15/2025",
+              "amount": "$250.00",
+              "status": "ON_TIME"
+            },
+            "pay_c7d8e9f0a1_plat_202505": {
+              "payment_id": "pay_c7d8e9f0a1_plat_202505",
+              "credit_card_account_id": "cc_c7d8e9f0a1_plat",
+              "user_id": "c7d8e9f0a1",
+              "payment_date": "05/15/2025",
+              "amount": "$250.00",
+              "status": "ON_TIME"
+            },
+            "pay_c7d8e9f0a1_plat_202504": {
+              "payment_id": "pay_c7d8e9f0a1_plat_202504",
+              "credit_card_account_id": "cc_c7d8e9f0a1_plat",
+              "user_id": "c7d8e9f0a1",
+              "payment_date": "04/15/2025",
+              "amount": "$250.00",
+              "status": "ON_TIME"
+            },
+            "pay_c7d8e9f0a1_plat_202503": {
+              "payment_id": "pay_c7d8e9f0a1_plat_202503",
+              "credit_card_account_id": "cc_c7d8e9f0a1_plat",
+              "user_id": "c7d8e9f0a1",
+              "payment_date": "03/15/2025",
+              "amount": "$250.00",
+              "status": "ON_TIME"
+            },
+            "pay_c7d8e9f0a1_plat_202502": {
+              "payment_id": "pay_c7d8e9f0a1_plat_202502",
+              "credit_card_account_id": "cc_c7d8e9f0a1_plat",
+              "user_id": "c7d8e9f0a1",
+              "payment_date": "02/15/2025",
+              "amount": "$250.00",
+              "status": "ON_TIME"
+            },
+            "pay_c7d8e9f0a1_plat_202501": {
+              "payment_id": "pay_c7d8e9f0a1_plat_202501",
+              "credit_card_account_id": "cc_c7d8e9f0a1_plat",
+              "user_id": "c7d8e9f0a1",
+              "payment_date": "01/15/2025",
+              "amount": "$250.00",
+              "status": "ON_TIME"
+            },
+            "pay_c7d8e9f0a1_plat_202412": {
+              "payment_id": "pay_c7d8e9f0a1_plat_202412",
+              "credit_card_account_id": "cc_c7d8e9f0a1_plat",
+              "user_id": "c7d8e9f0a1",
+              "payment_date": "12/15/2024",
+              "amount": "$250.00",
+              "status": "ON_TIME"
+            },
+            "pay_c7d8e9f0a1_plat_202411": {
+              "payment_id": "pay_c7d8e9f0a1_plat_202411",
+              "credit_card_account_id": "cc_c7d8e9f0a1_plat",
+              "user_id": "c7d8e9f0a1",
+              "payment_date": "11/15/2024",
+              "amount": "$250.00",
+              "status": "ON_TIME"
+            }
+          }
+        }
+      },
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R13_c_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Margot Bellamy",
+          "user_id": "c7d8e9f0a1",
+          "address": "2847 Lavender Lane, Denver, CO 80202",
+          "email": "margot.bellamy@gmail.com",
+          "phone_number": "303-555-0419",
+          "date_of_birth": "07/18/1989",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R13_c_1",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "submit_credit_limit_increase_request_7392"
+        }
+      },
+      {
+        "action_id": "task_R13_c_2",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "submit_credit_limit_increase_request_7392",
+          "arguments": "{\"credit_card_account_id\": \"cc_c7d8e9f0a1_plat\", \"user_id\": \"c7d8e9f0a1\", \"requested_increase_amount\": 1500}"
+        }
+      },
+      {
+        "action_id": "task_R13_c_3",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "approve_credit_limit_increase_5847"
+        }
+      },
+      {
+        "action_id": "task_R13_c_4",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "approve_credit_limit_increase_5847",
+          "arguments": "{\"credit_card_account_id\": \"cc_c7d8e9f0a1_plat\", \"user_id\": \"c7d8e9f0a1\", \"new_credit_limit\": 21500}"
+        }
+      }
+    ],
+    "reward_basis": [
+      "DB"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_credit_cards_platinum_rewards_card_007",
+    "doc_credit_cards_operational_update_906",
+    "doc_credit_cards_credit_card_replacements_002",
+    "doc_credit_cards_credit_card_account_logistics_004",
+    "doc_credit_cards_credit_card_account_logistics_005",
+    "doc_credit_cards_credit_card_account_logistics_006",
+    "doc_credit_cards_credit_card_account_logistics_007",
+    "doc_credit_cards_credit_card_replacements_005",
+    "doc_credit_cards_credit_cards_(general)_016"
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "id": "doc_credit_cards_operational_update_907",
+  "title": "Internal: Mid-Tier Card Retention Offer Update (Effective 09/01/2025)",
+  "content": "## Updated Offer\n\n- Effective 09/01/2025, the statement credit retention offer for mid-tier cards (Silver Rewards, Business Silver Rewards, Green Rewards and Silver Zoom) is $35. The bonus points alternative remains 2,000 points.\n- Retention offers for entry-tier and premium-tier cards are unchanged.\n- Apply the credit with apply_statement_credit_8472, reason 'retention_offer'.\n"
+}

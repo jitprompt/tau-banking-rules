@@ -1,0 +1,98 @@
+{
+  "id": "task_R12_t",
+  "description": {
+    "purpose": "Planted rule R12 (triggered)",
+    "relevant_policies": null,
+    "notes": "R12 (exception), triggered task. Trigger: overdraft fee courtesy refund when another overdraft fee posted in the prior 90 days. The rule applies here; the golden actions follow it."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Casey Rivera, a 28-year-old bus driver. You have a Light Blue Account (checking) with Rho-Bank.\n\n**Your situation:** A utility bill autopay went out a day before your paycheck landed, and you were charged a $35 overdraft fee on 11/06/2025.\n\n**Your goal:** Get the overdraft fee from 11/06 refunded.\n\n**Information you know and should provide when asked:**\n- Your full name: Casey Rivera\n- Your phone number: 512-555-0293\n- Your email: casey.rivera@gmail.com\n- Your date of birth: 03/22/1997\n- Your address: 4521 South Congress Ave, Austin, TX 78745\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, I got hit with a $35 overdraft fee on November 6th because a bill went out one day before my paycheck. Can you refund it?\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If the agent says only part of the fee can be refunded, accept: \"Okay, I'll take what I can get.\"\n4. Once the credit is applied, thank the agent and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": {
+        "bank_account_transaction_history": {
+          "data": {
+            "btxn_r12t_1": {
+              "transaction_id": "btxn_r12t_1",
+              "account_id": "chk_cr59b4d8e3",
+              "date": "09/18/2025",
+              "description": "OVERDRAFT FEE",
+              "amount": -35.0,
+              "type": "overdraft_fee",
+              "status": "posted"
+            },
+            "btxn_r12t_2": {
+              "transaction_id": "btxn_r12t_2",
+              "account_id": "chk_cr59b4d8e3",
+              "date": "10/31/2025",
+              "description": "DIRECT DEPOSIT - CITY TRANSIT AUTHORITY",
+              "amount": 1600.0,
+              "type": "direct_deposit",
+              "status": "posted"
+            },
+            "btxn_r12t_3": {
+              "transaction_id": "btxn_r12t_3",
+              "account_id": "chk_cr59b4d8e3",
+              "date": "11/06/2025",
+              "description": "OVERDRAFT FEE",
+              "amount": -35.0,
+              "type": "overdraft_fee",
+              "status": "posted"
+            }
+          }
+        }
+      },
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R12_t_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Casey Rivera",
+          "user_id": "cr59b4d8e3",
+          "address": "4521 South Congress Ave, Austin, TX 78745",
+          "email": "casey.rivera@gmail.com",
+          "phone_number": "512-555-0293",
+          "date_of_birth": "03/22/1997",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R12_t_1",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "apply_checking_account_credit_5829"
+        }
+      },
+      {
+        "action_id": "task_R12_t_2",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "apply_checking_account_credit_5829",
+          "arguments": "{\"account_id\": \"chk_cr59b4d8e3\", \"amount\": 17.5, \"credit_type\": \"fee_refund\"}"
+        }
+      }
+    ],
+    "reward_basis": [
+      "DB"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_bank_accounts_bank_accounts_(general)_017",
+    "doc_bank_accounts_operational_update_904",
+    "doc_bank_accounts_bank_accounts_(general)_009",
+    "doc_bank_accounts_bank_accounts_(general)_018"
+  ]
+}

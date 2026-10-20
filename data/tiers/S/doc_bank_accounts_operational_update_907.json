@@ -1,0 +1,5 @@
+{
+  "id": "doc_bank_accounts_operational_update_907",
+  "title": "Silver Account: Late Interest Posting",
+  "content": "## Interest Posting Schedule\n\n- Monthly interest on the Silver Account posts on the first business day of the month.\n\n## Late Postings (Internal)\n\n- If interest posts more than 3 business days late because of a Rho-Bank processing delay, the customer may receive a goodwill credit of $10.00 for the inconvenience.\n- Confirm the posting date in the account's transaction history.\n- Apply the credit with apply_savings_account_credit_6831, credit_type 'goodwill_credit'. One goodwill credit per delayed posting.\n"
+}

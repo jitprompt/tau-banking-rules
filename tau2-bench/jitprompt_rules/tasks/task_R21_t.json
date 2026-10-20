@@ -1,0 +1,72 @@
+{
+  "id": "task_R21_t",
+  "description": {
+    "purpose": "Planted rule R21 (triggered)",
+    "relevant_policies": null,
+    "notes": "R21 (ordering), triggered task. Trigger: replacement for a stolen card: review recent transactions before ordering. The rule applies here; the golden actions follow it."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Isabella Fernandez, a 46-year-old real estate developer. You have several Rho-Bank credit cards, including a Diamond Elite Card.\n\n**Your situation:** Your Diamond Elite Card was stolen from your car last night, together with your gym bag. You are at home and want the replacement sent to your address on file.\n\n**Your goal:** Replace your stolen Diamond Elite Card.\n\n**Information you know and should provide when asked:**\n- Your full name: Isabella Fernandez\n- Your phone number: 305-555-0729\n- Your email: bella_fernandez92@yahoo.com\n- Your date of birth: 12/19/1992\n- Your address: 742 Sunset Boulevard, Miami, FL 33101\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, my Diamond Elite Card was stolen from my car last night. I need to cancel it and get a new one.\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. Confirm your address on file as the shipping address.\n4. If asked about shipping speed: standard shipping is fine.\n5. If the agent goes through recent charges with you, say you recognize all of them - the last one you made was a restaurant bill two days ago.\n6. Once the replacement is ordered, thank the agent and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": null,
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R21_t_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Isabella Fernandez",
+          "user_id": "f9bf8de0be",
+          "address": "742 Sunset Boulevard, Miami, FL 33101",
+          "email": "bella_fernandez92@yahoo.com",
+          "phone_number": "305-555-0729",
+          "date_of_birth": "12/19/1992",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R21_t_1",
+        "requestor": "assistant",
+        "name": "get_credit_card_transactions_by_user",
+        "arguments": {
+          "user_id": "f9bf8de0be"
+        }
+      },
+      {
+        "action_id": "task_R21_t_2",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "order_replacement_credit_card_7291"
+        }
+      },
+      {
+        "action_id": "task_R21_t_3",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "order_replacement_credit_card_7291",
+          "arguments": "{\"credit_card_account_id\": \"cc_f9bf8de0be_diamond\", \"user_id\": \"f9bf8de0be\", \"shipping_address\": \"742 Sunset Boulevard, Miami, FL 33101\", \"reason\": \"stolen\", \"expedited_shipping\": false}"
+        }
+      }
+    ],
+    "reward_basis": [
+      "DB"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_credit_cards_credit_card_replacements_001",
+    "doc_credit_cards_credit_card_replacements_002"
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "id": "task_R10_c",
+  "description": {
+    "purpose": "Planted rule R10 (control)",
+    "relevant_policies": null,
+    "notes": "R10 (exception), control task. Trigger: early closure fee waiver requested on a checking account that received a new-account bonus. The rule nearly applies but does not; applying it is wrong."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Mia Smith, a 33-year-old nurse. You have a Blue Account (checking) and a Bronze savings account with Rho-Bank; you opened the Blue Account in early November.\n\n**Your situation:** Days after you opened the Blue Account, a $12 monthly maintenance fee appeared under 'updated account terms' - nobody told you about it. You moved your money out and the balance is now $0. You heard there may be an early closure fee and think it should be waived since the bank changed the terms.\n\n**Your goal:** Close your new Blue checking account, ideally without paying an early closure fee. Keep your savings account.\n\n**Information you know and should provide when asked:**\n- Your full name: Mia Smith\n- Your phone number: 512-555-0147\n- Your email: mia.smith8574@gmail.com\n- Your date of birth: 03/15/1992\n- Your address: 742 Maple Street, Austin, TX 78701\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, I opened a Blue checking account at the start of the month and you've already started charging me a monthly fee I was never told about. I want to close it, and I don't think I should have to pay an early closure fee.\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If asked about the balance: \"It's at zero - I already moved everything out.\"\n4. If the agent says the fee can't be waived and you'd need to deposit money first, say you won't do that and end the conversation.\n5. If the account is closed, thank the agent and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": {
+        "bank_account_transaction_history": {
+          "data": {
+            "btxn_r10c_1": {
+              "transaction_id": "btxn_r10c_1",
+              "account_id": "01",
+              "date": "11/08/2025",
+              "description": "OPENING DEPOSIT",
+              "amount": 500.0,
+              "type": "mobile_deposit",
+              "status": "posted"
+            },
+            "btxn_r10c_2": {
+              "transaction_id": "btxn_r10c_2",
+              "account_id": "01",
+              "date": "11/10/2025",
+              "description": "MONTHLY MAINTENANCE FEE - UPDATED ACCOUNT TERMS",
+              "amount": -12.0,
+              "type": "monthly_fee",
+              "status": "posted"
+            },
+            "btxn_r10c_3": {
+              "transaction_id": "btxn_r10c_3",
+              "account_id": "01",
+              "date": "11/12/2025",
+              "description": "ACH TRANSFER OUT - ALLY BANK",
+              "amount": -488.0,
+              "type": "ach_transfer_out",
+              "status": "posted"
+            }
+          }
+        }
+      },
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R10_c_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Mia Smith",
+          "user_id": "123",
+          "address": "742 Maple Street, Austin, TX 78701",
+          "email": "mia.smith8574@gmail.com",
+          "phone_number": "512-555-0147",
+          "date_of_birth": "03/15/1992",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R10_c_1",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "close_bank_account_7392"
+        }
+      },
+      {
+        "action_id": "task_R10_c_2",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "close_bank_account_7392",
+          "arguments": "{\"account_id\": \"01\", \"waive_early_closure_fee\": true}"
+        }
+      }
+    ],
+    "reward_basis": [
+      "DB"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_bank_accounts_bank_accounts_(general)_005",
+    "doc_bank_accounts_operational_update_903",
+    "doc_bank_accounts_bank_accounts_(general)_009",
+    "doc_bank_accounts_bank_accounts_(general)_018"
+  ]
+}

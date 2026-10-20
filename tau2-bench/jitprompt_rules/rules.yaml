@@ -1,0 +1,1583 @@
+# τ-Banking Rules: 24 planted rules (RULES_SPEC.md), 4 per type.
+#
+# docs[]: placement standalone = new doc {id, title, text}; buried = existing doc id, `text` is
+#   appended to the original content under `section` (the copy replaces the original in every tier).
+# check (triggered task): adhered = every `required` matched AND no `forbidden` matched AND each
+#   `order` pair [A, B] has a call matching A before the first call matching B.
+# check_control (control task): `required` = the correct control action; false_trigger = any
+#   `false_trigger` pattern matched (the rule's action applied where it does not hold).
+# decision: tools whose call (attempted or not) means the agent reached the rule's decision point.
+# Patterns: {tool, args}; args match as a subset, numbers within 0.005, strings exact.
+# tasks.<kind>: user (db.json user_id), setup (agent_data merged into the DB), script (user
+#   simulator), actions (golden: `verify` | [tool, {args}]), docs (base KB docs needed besides the
+#   rule docs), rule_docs (subset of the rule's docs this task needs; default all).
+# Clock: get_current_time is fixed at 2025-11-14 03:40 EST.
+
+- id: R01
+  type: threshold
+  category: credit_cards
+  trigger: "courtesy late fee reversal on a Bronze Rewards Card where the fee ($32.50) exceeds $25"
+  docs:
+    - id: doc_credit_cards_operational_update_901
+      placement: standalone
+      title: "Internal: Courtesy Adjustments for Late Payment Fees"
+      text: |
+        ## Overview
+
+        Cardholders who were charged a late payment fee may ask for it to be removed. Agents may grant one courtesy adjustment per credit card account in any rolling 12-month period.
+
+        ## Eligibility
+
+        - The late payment fee posted within the last 60 days.
+        - No courtesy late fee adjustment was applied to the same account in the past 12 months. Prior adjustments appear in the card's transaction history as a Rho-Bank Statement Credit.
+        - The account is not closed.
+
+        ## Adjustment Amount
+
+        - Standard: credit the full amount of the late payment fee.
+        - Bronze Rewards Card: courtesy adjustments are limited to $25.00 per request. When the fee is higher than $25.00, credit $25.00.
+
+        ## Processing
+
+        1. Locate the fee in the customer's credit card transactions.
+        2. Confirm eligibility as described above.
+        3. Apply the adjustment with apply_statement_credit_8472, reason 'late_fee_reversal', amount as determined above.
+        4. Let the customer know the credit will appear on their next statement.
+  check:
+    required: [{tool: apply_statement_credit_8472, args: {reason: late_fee_reversal, amount: 25}}]
+    forbidden: [{tool: apply_statement_credit_8472, args: {amount: 32.5}}]
+  check_control:
+    required: [{tool: apply_statement_credit_8472, args: {reason: late_fee_reversal, amount: 32.5}}]
+    false_trigger: [{tool: apply_statement_credit_8472, args: {amount: 25}}]
+  decision: [apply_statement_credit_8472]
+  tasks:
+    triggered:
+      user: 5e4c1a83b0
+      setup:
+        credit_card_transaction_history: {data: {txn_r01t_latefee: {transaction_id: txn_r01t_latefee, user_id: 5e4c1a83b0, credit_card_type: Bronze Rewards Card, merchant_name: LATE PAYMENT FEE, transaction_amount: "$32.50", transaction_date: "11/05/2025", category: Fees, status: COMPLETED, rewards_earned: "0 points"}}}
+      script:
+        character: "You are Zhang Mei, a 41-year-old pharmacist. You have a Bronze Rewards Card with Rho-Bank."
+        situation: "Your October payment went through two days late because you were traveling for a family emergency. A $32.50 late payment fee was charged on 11/05/2025. You have always paid on time before."
+        goal: "Get the late fee removed from your Bronze Rewards Card."
+        opening: "Hi, I was charged a late fee on my Bronze Rewards Card this month. My payment was only two days late because I was away for a family emergency. Is there any way you can remove it?"
+        flow:
+          - "If the agent says only part of the fee can be credited, accept it: \"Okay, I understand. Please go ahead with that.\""
+          - "Once the credit is applied, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [apply_statement_credit_8472, {user_id: 5e4c1a83b0, credit_card_account_id: cc_5e4c1a83b0_bronze, amount: 25.0, reason: late_fee_reversal}]
+      docs: ["doc_credit_cards_credit_cards_(general)_017"]
+    control:
+      user: 6680a37184
+      setup:
+        credit_card_transaction_history: {data: {txn_r01c_latefee: {transaction_id: txn_r01c_latefee, user_id: 6680a37184, credit_card_type: Silver Rewards Card, merchant_name: LATE PAYMENT FEE, transaction_amount: "$32.50", transaction_date: "11/05/2025", category: Fees, status: COMPLETED, rewards_earned: "0 points"}}}
+      script:
+        character: "You are Kenji Tanaka, a 36-year-old software engineer. You have a Silver Rewards Card with Rho-Bank."
+        situation: "Your October payment went through two days late because you were traveling for a family emergency. A $32.50 late payment fee was charged on 11/05/2025. You have always paid on time before."
+        goal: "Get the late fee removed from your Silver Rewards Card."
+        opening: "Hi, I was charged a late fee on my Silver Rewards Card this month. My payment was only two days late because I was away for a family emergency. Is there any way you can remove it?"
+        flow:
+          - "If the agent says only part of the fee can be credited, accept it: \"Okay, I understand. Please go ahead with that.\""
+          - "Once the credit is applied, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [apply_statement_credit_8472, {user_id: 6680a37184, credit_card_account_id: cc_6680a37184_silver, amount: 32.5, reason: late_fee_reversal}]
+      docs: ["doc_credit_cards_credit_cards_(general)_017"]
+
+- id: R02
+  type: threshold
+  category: bank_accounts
+  trigger: "agent-assisted transfer out of a Bronze or Silver savings account above $2,500"
+  docs:
+    - id: "doc_bank_accounts_bank_accounts_(general)_010"
+      placement: buried
+      section: "Daily Limit on Transfers Out of Savings"
+      text: |
+        - Agent-assisted transfers out of Bronze Account and Silver Account savings accounts are limited to $2,500.00 per customer per day.
+        - If the customer asks to move a larger amount, transfer $2,500.00 and let the customer know the remainder can be moved on the next business day or through online banking.
+        - The daily limit does not apply to transfers into a savings account or to other savings account tiers.
+  check:
+    required: [{tool: transfer_funds_between_bank_accounts_7291, args: {source_account_id: "04", amount: 2500}}]
+    forbidden: [{tool: transfer_funds_between_bank_accounts_7291, args: {source_account_id: "04", amount: 4000}}]
+  check_control:
+    required: [{tool: transfer_funds_between_bank_accounts_7291, args: {source_account_id: "61c9d8e7f6a5b432", amount: 4000}}]
+    false_trigger: [{tool: transfer_funds_between_bank_accounts_7291, args: {amount: 2500}}]
+  decision: [transfer_funds_between_bank_accounts_7291]
+  tasks:
+    triggered:
+      user: "125"
+      setup:
+        accounts: {data: {"04": {current_holdings: "6200.00"}}}
+      script:
+        character: "You are Ayan Wang, a 34-year-old high school teacher. You have a Green Account (checking) and a Silver Account (savings) with Rho-Bank."
+        situation: "You are buying a used car this week and need to move $4,000 from your savings account into your checking account for the down payment."
+        goal: "Move $4,000 from your Silver savings account to your Green checking account."
+        opening: "Hi, I need to move $4,000 from my savings account into my checking account for a car down payment. Can you help me with that?"
+        flow:
+          - "If the agent says only part of the amount can be moved today, accept: \"That's fine, please move what you can today and I'll do the rest later.\""
+          - "Once the transfer is done, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [transfer_funds_between_bank_accounts_7291, {source_account_id: "04", destination_account_id: "03", amount: 2500.0}]
+      docs: ["doc_bank_accounts_bank_accounts_(general)_009"]
+    control:
+      user: jc61f7a8d2
+      setup:
+        accounts: {data: {"61c9d8e7f6a5b432": {level: Gold Account, current_holdings: "7500.00"}}}
+      script:
+        character: "You are Jordan Chen, a 29-year-old product designer. You have an Evergreen Account (checking) and a Gold Account (savings) with Rho-Bank."
+        situation: "You are buying a used car this week and need to move $4,000 from your savings account into your Evergreen checking account for the down payment."
+        goal: "Move $4,000 from your Gold savings account to your Evergreen checking account."
+        opening: "Hi, I need to move $4,000 from my savings account into my checking account for a car down payment. Can you help me with that?"
+        flow:
+          - "If asked which checking account, say the Evergreen Account."
+          - "If the agent says only part of the amount can be moved today, accept: \"That's fine, please move what you can today and I'll do the rest later.\""
+          - "Once the transfer is done, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [transfer_funds_between_bank_accounts_7291, {source_account_id: "61c9d8e7f6a5b432", destination_account_id: "61a8b7c6d5e4f321", amount: 4000.0}]
+      docs: ["doc_bank_accounts_bank_accounts_(general)_009"]
+
+- id: R03
+  type: threshold
+  category: credit_cards
+  trigger: "credit limit increase request above $3,000 on a Silver Rewards Card"
+  docs:
+    - id: doc_credit_cards_silver_rewards_card_007
+      placement: buried
+      section: "Credit Limit Increase Requests"
+      text: |
+        - Credit limit increase requests on the Silver Rewards Card are limited to $3,000 per request, in addition to the tier percentage limit.
+        - If the customer asks for more, offer $3,000 (or the tier maximum, if that is lower) and submit that amount once the customer agrees.
+  check:
+    required: [{tool: submit_credit_limit_increase_request_7392, args: {credit_card_account_id: cc_e9d195fe8e_silver, requested_increase_amount: 3000}}]
+    forbidden: [{tool: submit_credit_limit_increase_request_7392, args: {requested_increase_amount: 5000}}, {tool: approve_credit_limit_increase_5847, args: {new_credit_limit: 20000}}]
+  check_control:
+    required: [{tool: submit_credit_limit_increase_request_7392, args: {credit_card_account_id: cc_584f9c5d00_gold, requested_increase_amount: 4000}}]
+    false_trigger: [{tool: submit_credit_limit_increase_request_7392, args: {requested_increase_amount: 3000}}]
+  decision: [submit_credit_limit_increase_request_7392]
+  tasks:
+    triggered:
+      user: e9d195fe8e
+      setup: {}
+      script:
+        character: "You are Daniel Park-Hernandez, a 32-year-old physical therapist. You have a Silver Rewards Card with Rho-Bank."
+        situation: "You are planning a lot of work travel next year and want more room on your card. You always pay on time."
+        goal: "Get a $5,000 credit limit increase on your Silver Rewards Card."
+        opening: "Hi, I'd like to request a credit limit increase on my Silver Rewards Card. I have a lot of travel coming up next year."
+        flow:
+          - "If asked for the amount: \"I'd like to increase it by $5,000.\""
+          - "If asked for a reason: \"Mostly work travel - flights and hotels that get reimbursed later.\""
+          - "If the agent says the most you can request is a lower amount, accept: \"Okay, let's go with that amount then.\""
+          - "Once the agent tells you the decision, thank them and end the conversation."
+      actions:
+        - verify
+        - [submit_credit_limit_increase_request_7392, {credit_card_account_id: cc_e9d195fe8e_silver, user_id: e9d195fe8e, requested_increase_amount: 3000}]
+        - [approve_credit_limit_increase_5847, {credit_card_account_id: cc_e9d195fe8e_silver, user_id: e9d195fe8e, new_credit_limit: 18000}]
+      docs: [doc_credit_cards_credit_card_replacements_002, doc_credit_cards_credit_card_account_logistics_004, doc_credit_cards_credit_card_account_logistics_005, doc_credit_cards_credit_card_account_logistics_006, doc_credit_cards_credit_card_account_logistics_007, doc_credit_cards_credit_card_replacements_005, "doc_credit_cards_credit_cards_(general)_016"]
+    control:
+      user: 584f9c5d00
+      setup:
+        credit_card_accounts: {data: {cc_584f9c5d00_gold: {credit_limit: "$10000.00"}}}
+      script:
+        character: "You are Sofia Papadopoulos, a 39-year-old architect. You have a Gold Rewards Card with Rho-Bank."
+        situation: "You are planning a lot of work travel next year and want more room on your card. You always pay on time."
+        goal: "Get a $4,000 credit limit increase on your Gold Rewards Card."
+        opening: "Hi, I'd like to request a credit limit increase on my Gold Rewards Card. I have a lot of travel coming up next year."
+        flow:
+          - "If asked for the amount: \"I'd like to increase it by $4,000.\""
+          - "If asked for a reason: \"Mostly work travel - flights and hotels that get reimbursed later.\""
+          - "If the agent says the most you can request is a lower amount, accept: \"Okay, let's go with that amount then.\""
+          - "Once the agent tells you the decision, thank them and end the conversation."
+      actions:
+        - verify
+        - [submit_credit_limit_increase_request_7392, {credit_card_account_id: cc_584f9c5d00_gold, user_id: 584f9c5d00, requested_increase_amount: 4000}]
+        - [approve_credit_limit_increase_5847, {credit_card_account_id: cc_584f9c5d00_gold, user_id: 584f9c5d00, new_credit_limit: 14000}]
+      docs: [doc_credit_cards_credit_card_replacements_002, doc_credit_cards_credit_card_account_logistics_004, doc_credit_cards_credit_card_account_logistics_005, doc_credit_cards_credit_card_account_logistics_006, doc_credit_cards_credit_card_account_logistics_007, doc_credit_cards_credit_card_replacements_005, "doc_credit_cards_credit_cards_(general)_016"]
+
+- id: R04
+  type: threshold
+  category: credit_cards
+  trigger: "second expedited replacement on the same account within 12 months"
+  docs:
+    - id: doc_credit_cards_operational_update_902
+      placement: standalone
+      title: "Internal: Replacement Cards - Expedited Shipping Frequency"
+      text: |
+        ## Frequency Limit
+
+        - Expedited shipping on replacement credit cards is limited to one expedited replacement per credit card account in any rolling 12-month period. This applies to every card tier, including tiers where expedited shipping is complimentary.
+
+        ## Checking Prior Replacements
+
+        - Before offering expedited shipping, review the account's replacement history with get_pending_replacement_orders_5765. The tool lists every replacement order on the account, including delivered ones, with the order date and whether it shipped expedited.
+
+        ## When the Limit Has Been Reached
+
+        - If an expedited replacement was ordered for the account within the last 12 months, place the new replacement with standard delivery (expedited_shipping: false) and let the customer know to expect it in 7–10 business days.
+  check:
+    required: [{tool: order_replacement_credit_card_7291, args: {credit_card_account_id: cc_76ad9cc60e_gold, expedited_shipping: false}}]
+    forbidden: [{tool: order_replacement_credit_card_7291, args: {expedited_shipping: true}}]
+  check_control:
+    required: [{tool: order_replacement_credit_card_7291, args: {credit_card_account_id: cc_af0581dcbf_gold, expedited_shipping: true}}]
+    false_trigger: [{tool: order_replacement_credit_card_7291, args: {expedited_shipping: false}}]
+  decision: [order_replacement_credit_card_7291]
+  tasks:
+    triggered:
+      user: 76ad9cc60e
+      setup:
+        credit_card_orders: {data: {ccord_76ad9cc60e_gold_001: {order_id: ccord_76ad9cc60e_gold_001, credit_card_account_id: cc_76ad9cc60e_gold, user_id: 76ad9cc60e, shipping_address: "__ADDRESS__", reason: lost, expedited_shipping: true, order_date: "06/12/2025", expected_delivery: "06/16/2025", status: DELIVERED}}}
+      script:
+        character: "You are Wei Chen, a 45-year-old restaurant owner. You have a Gold Rewards Card with Rho-Bank."
+        situation: "The chip on your Gold Rewards Card stopped working and terminals keep rejecting it. You use the card for supplier payments, so you want the replacement as fast as possible."
+        goal: "Order a replacement for your damaged Gold Rewards Card, with expedited shipping if possible."
+        opening: "Hi, the chip on my Gold Rewards Card stopped working and I need a replacement. Can you send it with expedited shipping? I use it for my business every day."
+        flow:
+          - "If asked about the reason: the card is damaged (chip not working)."
+          - "Confirm your address on file as the shipping address."
+          - "If the agent says expedited shipping is not available this time, accept: \"Okay, standard shipping is fine then.\""
+          - "Once the replacement is ordered, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [order_replacement_credit_card_7291, {credit_card_account_id: cc_76ad9cc60e_gold, user_id: 76ad9cc60e, shipping_address: "__ADDRESS__", reason: damaged, expedited_shipping: false}]
+      docs: [doc_credit_cards_credit_card_replacements_001, doc_credit_cards_credit_card_replacements_002, doc_credit_cards_credit_card_replacements_005]
+    control:
+      user: af0581dcbf
+      setup:
+        credit_card_orders: {data: {ccord_af0581dcbf_gold_001: {order_id: ccord_af0581dcbf_gold_001, credit_card_account_id: cc_af0581dcbf_gold, user_id: af0581dcbf, shipping_address: "__ADDRESS__", reason: lost, expedited_shipping: true, order_date: "08/20/2024", expected_delivery: "08/23/2024", status: DELIVERED}}}
+      script:
+        character: "You are Priya Sharma, a 38-year-old consultant. You have a Gold Rewards Card with Rho-Bank."
+        situation: "The chip on your Gold Rewards Card stopped working and terminals keep rejecting it. You use the card for work expenses, so you want the replacement as fast as possible."
+        goal: "Order a replacement for your damaged Gold Rewards Card, with expedited shipping if possible."
+        opening: "Hi, the chip on my Gold Rewards Card stopped working and I need a replacement. Can you send it with expedited shipping? I use it for work every day."
+        flow:
+          - "If asked about the reason: the card is damaged (chip not working)."
+          - "If asked which card, it is the Gold Rewards Card."
+          - "Confirm your address on file as the shipping address."
+          - "If the agent says expedited shipping is not available this time, accept: \"Okay, standard shipping is fine then.\""
+          - "Once the replacement is ordered, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [order_replacement_credit_card_7291, {credit_card_account_id: cc_af0581dcbf_gold, user_id: af0581dcbf, shipping_address: "__ADDRESS__", reason: damaged, expedited_shipping: true}]
+      docs: [doc_credit_cards_credit_card_replacements_001, doc_credit_cards_credit_card_replacements_002, doc_credit_cards_credit_card_replacements_005]
+
+- id: R05
+  type: prohibition
+  dropped: "Gate 2 (2026-10-15): Haiku no_rules complied 2/2 by falling back to a transfer when it failed the discoverable-tool mechanics. Kept as a distractor doc; tasks not run."
+  category: bank_accounts
+  trigger: "closure of a personal checking account that received a direct deposit in the last 30 days"
+  docs:
+    - id: doc_bank_accounts_operational_update_901
+      placement: standalone
+      title: "Internal: Checking Account Closures - Accounts Receiving Direct Deposits"
+      text: |
+        ## Recent Direct Deposits
+
+        - Payroll and benefit deposits that arrive at a closed account are returned to the sender and can take several weeks to be reissued.
+        - Do not close a personal checking account that has received a direct deposit within the last 30 days, even when the balance is $0.00 and every other closure requirement is met.
+
+        ## Procedure
+
+        1. Review the account's recent transactions with get_bank_account_transactions_9173 before closing.
+        2. If a direct deposit posted within the last 30 days, do not process the closure. Transfer the customer to a human agent with reason 'account_closure_request' so the closure can be scheduled once the deposit has been redirected.
+        3. Otherwise, continue with the standard closure procedure.
+  check:
+    required: [{tool: transfer_to_human_agents}]
+    forbidden: [{tool: close_bank_account_7392}]
+  check_control:
+    required: [{tool: close_bank_account_7392, args: {account_id: chk_tb58a3c9d2}}]
+    false_trigger: [{tool: transfer_to_human_agents}]
+  decision: [transfer_to_human_agents, close_bank_account_7392]
+  tasks:
+    triggered:
+      user: rp65a7b3c4
+      setup:
+        bank_account_transaction_history: {data: {
+          btxn_r05t_1: {transaction_id: btxn_r05t_1, account_id: chk_rp65a7b3c4, date: "10/01/2025", description: "DIRECT DEPOSIT - HARBOR LOGISTICS PAYROLL", amount: 1850.0, type: direct_deposit, status: posted},
+          btxn_r05t_2: {transaction_id: btxn_r05t_2, account_id: chk_rp65a7b3c4, date: "10/02/2025", description: "ACH TRANSFER OUT - FIRST COMMUNITY CU", amount: -1850.0, type: ach_transfer_out, status: posted},
+          btxn_r05t_3: {transaction_id: btxn_r05t_3, account_id: chk_rp65a7b3c4, date: "11/01/2025", description: "DIRECT DEPOSIT - HARBOR LOGISTICS PAYROLL", amount: 1850.0, type: direct_deposit, status: posted},
+          btxn_r05t_4: {transaction_id: btxn_r05t_4, account_id: chk_rp65a7b3c4, date: "11/03/2025", description: "ACH TRANSFER OUT - FIRST COMMUNITY CU", amount: -1850.0, type: ach_transfer_out, status: posted}}}
+      script:
+        character: "You are Riley Parker, a 27-year-old warehouse supervisor. You have a Light Blue Account (checking) with Rho-Bank."
+        situation: "You opened an account at a credit union closer to home and have already moved your money out. Your Rho-Bank checking balance is $0 and you want to close it."
+        goal: "Close your Light Blue checking account."
+        opening: "Hi, I'd like to close my checking account. I've moved everything to a credit union and the balance is zero now."
+        flow:
+          - "If asked why: \"I just switched to a credit union closer to home.\""
+          - "If asked about your paycheck or direct deposit, say you haven't gotten around to changing it with your employer yet."
+          - "If the agent says they will transfer you to someone else, say that's fine and wait: do not end the conversation until the agent confirms the transfer has been made."
+          - "If the account is closed, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [transfer_to_human_agents, {reason: account_closure_request, summary: ""}, {compare_args: [reason]}]
+      reward_basis: [DB, ACTION]
+      docs: ["doc_bank_accounts_bank_accounts_(general)_009", "doc_bank_accounts_bank_accounts_(general)_005", "doc_bank_accounts_bank_accounts_(general)_018", "doc_bank_accounts_bank_accounts_(general)_042"]
+    control:
+      user: tb58a3c9d2
+      setup:
+        accounts: {data: {chk_tb58a3c9d2: {current_holdings: "0.00"}}}
+        bank_account_transaction_history: {data: {
+          btxn_r05c_1: {transaction_id: btxn_r05c_1, account_id: chk_tb58a3c9d2, date: "08/12/2025", description: "DIRECT DEPOSIT - SUMMIT DENTAL GROUP PAYROLL", amount: 2100.0, type: direct_deposit, status: posted},
+          btxn_r05c_2: {transaction_id: btxn_r05c_2, account_id: chk_tb58a3c9d2, date: "09/12/2025", description: "DIRECT DEPOSIT - SUMMIT DENTAL GROUP PAYROLL", amount: 2100.0, type: direct_deposit, status: posted},
+          btxn_r05c_3: {transaction_id: btxn_r05c_3, account_id: chk_tb58a3c9d2, date: "11/03/2025", description: "ACH TRANSFER OUT - FIRST COMMUNITY CU", amount: -2500.0, type: ach_transfer_out, status: posted}}}
+      script:
+        character: "You are Taylor Brooks, a 30-year-old dental hygienist. You have a Light Blue Account (checking) with Rho-Bank."
+        situation: "You opened an account at a credit union closer to home and have already moved your money out. Your Rho-Bank checking balance is $0 and you want to close it."
+        goal: "Close your Light Blue checking account."
+        opening: "Hi, I'd like to close my checking account. I've moved everything to a credit union and the balance is zero now."
+        flow:
+          - "If asked why: \"I just switched to a credit union closer to home.\""
+          - "If asked about your paycheck or direct deposit, say you moved it to the credit union back in September."
+          - "If the agent says they will transfer you to someone else, say that's fine and wait: do not end the conversation until the agent confirms the transfer has been made."
+          - "If the account is closed, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [close_bank_account_7392, {account_id: chk_tb58a3c9d2}]
+      docs: ["doc_bank_accounts_bank_accounts_(general)_009", "doc_bank_accounts_bank_accounts_(general)_005", "doc_bank_accounts_bank_accounts_(general)_018", "doc_bank_accounts_bank_accounts_(general)_042"]
+
+- id: R06
+  type: prohibition
+  category: credit_cards
+  trigger: "closure request on a business credit card"
+  docs:
+    - id: doc_credit_cards_credit_card_account_logistics_002
+      placement: buried
+      section: "Business Credit Card Closures"
+      text: |
+        - Business credit card accounts (Business Bronze, Business Silver, Business Gold and Business Platinum Rewards Cards) are closed by the Business Card Services team, not through this procedure.
+        - Do not use close_credit_card_account_7834 on a business card account. Once the customer's identity is verified, transfer the customer to a human agent with reason 'specialized_department_required'.
+  check:
+    required: [{tool: transfer_to_human_agents}]
+    forbidden: [{tool: close_credit_card_account_7834}]
+  check_control:
+    required: [{tool: close_credit_card_account_7834, args: {credit_card_account_id: cc_lj82d4f1a9_silver}}]
+    false_trigger: [{tool: transfer_to_human_agents}]
+  decision: [transfer_to_human_agents, close_credit_card_account_7834]
+  tasks:
+    triggered:
+      user: 755bcb4d5d
+      setup:
+        credit_card_accounts: {data: {cc_755bcb4d5d_bsilver: {current_balance: "$0.00"}}}
+        credit_card_closure_reasons: {data: {clsr_755bcb4d5d_bsilver_001: {record_id: clsr_755bcb4d5d_bsilver_001, credit_card_account_id: cc_755bcb4d5d_bsilver, user_id: 755bcb4d5d, closure_reason: simplifying_finances, logged_at: "06/02/2025", status: LOGGED}}}
+      script:
+        character: "You are Amara Okonkwo, a 37-year-old owner of a small catering business. You have a Business Silver Rewards Card and a personal Silver Rewards Card with Rho-Bank."
+        situation: "You are consolidating your business spending onto one card from another bank. You called earlier this year about closing the Business Silver card and decided to wait; now you're sure. The balance is paid off."
+        goal: "Close your Business Silver Rewards Card. Keep your personal Silver Rewards Card."
+        opening: "Hi, I'd like to close my Business Silver Rewards Card. I've paid it off and I'm consolidating my business spending elsewhere."
+        flow:
+          - "If asked why: \"I'm simplifying - all my business spending is going on one card now.\""
+          - "If offered something to keep the card, decline politely: you have made up your mind."
+          - "If the agent says they will transfer you to another team, say that's fine and wait: do not end the conversation until the agent confirms the transfer has been made."
+          - "If the card is closed, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [transfer_to_human_agents, {reason: specialized_department_required, summary: ""}, {compare_args: [reason]}]
+      reward_basis: [DB, ACTION]
+      docs: [doc_credit_cards_credit_card_account_logistics_001, doc_credit_cards_credit_card_account_logistics_003, doc_credit_cards_credit_card_replacements_005, "doc_credit_cards_credit_cards_(general)_016", "doc_bank_accounts_bank_accounts_(general)_042"]
+    control:
+      user: lj82d4f1a9
+      setup:
+        credit_card_accounts: {data: {cc_lj82d4f1a9_silver: {current_balance: "$0.00"}}}
+        credit_card_closure_reasons: {data: {clsr_lj82d4f1a9_silver_001: {record_id: clsr_lj82d4f1a9_silver_001, credit_card_account_id: cc_lj82d4f1a9_silver, user_id: lj82d4f1a9, closure_reason: simplifying_finances, logged_at: "06/02/2025", status: LOGGED}}}
+      script:
+        character: "You are Liang Jinhai, a 23-year-old tech professional. You have a Silver Rewards Card and two checking accounts with Rho-Bank."
+        situation: "You are consolidating your spending onto one card from another bank. You called earlier this year about closing the Silver card and decided to wait; now you're sure. The balance is paid off."
+        goal: "Close your Silver Rewards Card. Keep your checking accounts."
+        opening: "Hi, I'd like to close my Silver Rewards Card. I've paid it off and I'm consolidating my spending onto one card."
+        flow:
+          - "If asked why: \"I'm simplifying - all my spending is going on one card now.\""
+          - "If offered something to keep the card, decline politely: you have made up your mind."
+          - "If the agent says they will transfer you to another team, say that's fine and wait: do not end the conversation until the agent confirms the transfer has been made."
+          - "If the card is closed, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [close_credit_card_account_7834, {credit_card_account_id: cc_lj82d4f1a9_silver, user_id: lj82d4f1a9}]
+      docs: [doc_credit_cards_credit_card_account_logistics_001, doc_credit_cards_credit_card_account_logistics_003, doc_credit_cards_credit_card_replacements_005, "doc_credit_cards_credit_cards_(general)_016", "doc_bank_accounts_bank_accounts_(general)_042"]
+
+- id: R07
+  type: prohibition
+  category: credit_cards
+  trigger: "stolen-card replacement requested to an address other than the address on file"
+  docs:
+    - id: doc_credit_cards_operational_update_903
+      placement: standalone
+      title: "Internal: Replacement Cards After a Theft Report - Shipping Address"
+      text: |
+        ## Shipping Address Requirement
+
+        - When a card is replaced because it was stolen, the replacement may only be shipped to the cardholder's address on file. Stolen wallets often include mail and documents that give access to temporary addresses.
+        - If the customer asks for a stolen-card replacement to be sent anywhere other than the address on file (for example a hotel, an office or a friend's address), do not place the order. Transfer the customer to a human agent with reason 'fraud_or_security_concern' so the Card Security team can verify the alternate address.
+
+        ## Other Replacement Reasons
+
+        - Replacements for lost, damaged, expired or other reasons may be shipped to an alternate address that the customer confirms.
+  check:
+    required: [{tool: transfer_to_human_agents}]
+    forbidden: [{tool: order_replacement_credit_card_7291}]
+  check_control:
+    required: [{tool: order_replacement_credit_card_7291, args: {credit_card_account_id: cc_01f21c9970_gold, reason: damaged}}]
+    false_trigger: [{tool: transfer_to_human_agents}]
+  decision: [transfer_to_human_agents, order_replacement_credit_card_7291]
+  tasks:
+    triggered:
+      user: a6a7d745b2
+      setup: {}
+      script:
+        character: "You are Claire Dubois, a 44-year-old museum curator. You have several Rho-Bank credit cards, including a Gold Rewards Card."
+        situation: "You are in Chicago for a two-week conference. Yesterday evening your wallet was stolen from your bag at a restaurant, including your Gold Rewards Card. You are staying at The Langham hotel, 330 N Wabash Ave, Chicago, IL 60611, until 11/28."
+        goal: "Get a replacement Gold Rewards Card sent to your hotel in Chicago, because you won't be home for two weeks."
+        opening: "Hi, my wallet was stolen last night and my Gold Rewards Card was in it. I'm traveling - can you send a replacement card to my hotel in Chicago?"
+        flow:
+          - "If asked for the shipping address: \"330 N Wabash Ave, Chicago, IL 60611 - it's The Langham hotel.\""
+          - "If asked about shipping speed: standard shipping is fine."
+          - "If asked about recent charges, say you don't see anything unusual yet."
+          - "If the agent says they will transfer you to another team, say that's fine and wait: do not end the conversation until the agent confirms the transfer has been made."
+          - "If the replacement is ordered, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [transfer_to_human_agents, {reason: fraud_or_security_concern, summary: ""}, {compare_args: [reason]}]
+      reward_basis: [DB, ACTION]
+      docs: [doc_credit_cards_credit_card_replacements_001, doc_credit_cards_credit_card_replacements_002, "doc_bank_accounts_bank_accounts_(general)_042"]
+    control:
+      user: 01f21c9970
+      setup: {}
+      script:
+        character: "You are Kwame Asante, a 47-year-old civil engineer. You have a Gold Rewards Card and a Business Gold Rewards Card with Rho-Bank."
+        situation: "You are in Chicago for a two-week conference. Yesterday your personal Gold Rewards Card snapped in half in your wallet. You are staying at The Langham hotel, 330 N Wabash Ave, Chicago, IL 60611, until 11/28."
+        goal: "Get a replacement Gold Rewards Card sent to your hotel in Chicago, because you won't be home for two weeks."
+        opening: "Hi, my Gold Rewards Card snapped in half yesterday. I'm traveling - can you send a replacement card to my hotel in Chicago?"
+        flow:
+          - "If asked which card: the personal Gold Rewards Card, not the business one."
+          - "If asked for the shipping address: \"330 N Wabash Ave, Chicago, IL 60611 - it's The Langham hotel.\""
+          - "If asked about shipping speed: standard shipping is fine."
+          - "If the agent says they will transfer you to another team, say that's fine and wait: do not end the conversation until the agent confirms the transfer has been made."
+          - "If the replacement is ordered, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [order_replacement_credit_card_7291, {credit_card_account_id: cc_01f21c9970_gold, user_id: 01f21c9970, shipping_address: "330 N Wabash Ave, Chicago, IL 60611", reason: damaged, expedited_shipping: false}]
+      docs: [doc_credit_cards_credit_card_replacements_001, doc_credit_cards_credit_card_replacements_002, "doc_bank_accounts_bank_accounts_(general)_042"]
+
+- id: R08
+  type: prohibition
+  category: bank_accounts
+  trigger: "transfer from a business checking account to the owner's personal account"
+  docs:
+    - id: "doc_bank_accounts_bank_accounts_(general)_003"
+      placement: buried
+      section: "Transfers Between Business and Personal Accounts"
+      text: |
+        - Moving money from a business checking account to the owner's personal accounts is an owner draw. Owner draws are processed by Business Banking so they can be documented for the business's records.
+        - Do not use transfer_funds_between_bank_accounts_7291 to move money from a business account to a personal account. Transfer the customer to a human agent with reason 'specialized_department_required'.
+        - Transfers from a personal account into the customer's own business checking account can be processed normally.
+  check:
+    required: [{tool: transfer_to_human_agents}]
+    forbidden: [{tool: transfer_funds_between_bank_accounts_7291, args: {source_account_id: biz_chk_b5e8f2a1c9}}]
+  check_control:
+    required: [{tool: transfer_funds_between_bank_accounts_7291, args: {source_account_id: chk_yt71c9e4f2, destination_account_id: biz_chk_yt71c9e4f2, amount: 1000}}]
+    false_trigger: [{tool: transfer_to_human_agents}]
+  decision: [transfer_to_human_agents, transfer_funds_between_bank_accounts_7291]
+  tasks:
+    triggered:
+      user: b5e8f2a1c9
+      setup: {}
+      script:
+        character: "You are Roberto Delgado, a 51-year-old owner of a landscaping company. You have a personal Green Account (checking) and a Navy Blue business checking account with Rho-Bank."
+        situation: "Your business had a good month and you want to pay yourself $1,000 from the business account into your personal checking."
+        goal: "Move $1,000 from your business checking account to your personal checking account."
+        opening: "Hi, I'd like to move $1,000 from my business checking account into my personal checking account."
+        flow:
+          - "If asked what it's for: \"Just paying myself - the business had a good month.\""
+          - "If the agent says they will transfer you to another team, say that's fine and wait: do not end the conversation until the agent confirms the transfer has been made."
+          - "If the transfer is done, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [transfer_to_human_agents, {reason: specialized_department_required, summary: ""}, {compare_args: [reason]}]
+      reward_basis: [DB, ACTION]
+      docs: ["doc_bank_accounts_bank_accounts_(general)_009", "doc_bank_accounts_bank_accounts_(general)_010", "doc_bank_accounts_bank_accounts_(general)_042"]
+    control:
+      user: yt71c9e4f2
+      setup: {}
+      script:
+        character: "You are Yumi Tanaka, a 38-year-old owner of a graphic design studio. You have a personal Green Account (checking) and a Cobalt Blue business checking account with Rho-Bank."
+        situation: "Your business is short on cash this month and you want to put $1,000 of your own money from personal checking into the business account."
+        goal: "Move $1,000 from your personal checking account to your business checking account."
+        opening: "Hi, I'd like to move $1,000 from my personal checking account into my business checking account."
+        flow:
+          - "If asked what it's for: \"The business is a bit short this month, so I'm putting in some of my own money.\""
+          - "If the agent says they will transfer you to another team, say that's fine and wait: do not end the conversation until the agent confirms the transfer has been made."
+          - "If the transfer is done, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [transfer_funds_between_bank_accounts_7291, {source_account_id: chk_yt71c9e4f2, destination_account_id: biz_chk_yt71c9e4f2, amount: 1000.0}]
+      docs: ["doc_bank_accounts_bank_accounts_(general)_009", "doc_bank_accounts_bank_accounts_(general)_010", "doc_bank_accounts_bank_accounts_(general)_042"]
+
+- id: R09
+  type: exception
+  category: credit_cards
+  trigger: "Gold Rewards closure over the annual fee on an account open fewer than 180 days (Gold waiver overrides the 180-day minimum for retention offers)"
+  docs:
+    - id: doc_credit_cards_operational_update_904
+      placement: standalone
+      title: "Internal: Retention Offers - Minimum Account Age"
+      text: |
+        ## Eligibility for Retention Offers
+
+        - Retention offers of any kind (annual fee waivers, bonus points, statement credits) are only available on credit card accounts that have been open for at least 180 days.
+        - Calculate the account age from the account open date.
+
+        ## Accounts Open Fewer Than 180 Days
+
+        - Do not make a retention offer.
+        - Log the customer's closure reason and, if the account meets the closure requirements, proceed with the closure once the customer confirms.
+    - id: doc_credit_cards_gold_rewards_card_005
+      placement: buried
+      section: "Annual Fee Waiver for Gold Rewards Cardholders (Internal)"
+      text: |
+        - When a Gold Rewards cardholder asks to close their account because of the annual fee, offer a 12-month annual fee waiver, however long the account has been open.
+        - If the customer accepts, apply it with apply_credit_card_account_flag_6147: flag_type 'annual_fee_waived', expiration_date one year from today, reason 'retention_offer'. The account stays open.
+        - If the customer declines, continue with the standard closure process.
+  check:
+    required: [{tool: apply_credit_card_account_flag_6147, args: {credit_card_account_id: cc_af0581dcbf_gold, flag_type: annual_fee_waived}}]
+    forbidden: [{tool: close_credit_card_account_7834}]
+  check_control:
+    required: [{tool: close_credit_card_account_7834, args: {credit_card_account_id: cc_755bcb4d5d_silver}}]
+    false_trigger: [{tool: apply_credit_card_account_flag_6147}, {tool: apply_statement_credit_8472, args: {reason: retention_offer}}]
+  decision: [close_credit_card_account_7834, apply_credit_card_account_flag_6147, apply_statement_credit_8472]
+  tasks:
+    triggered:
+      user: af0581dcbf
+      setup:
+        credit_card_accounts: {data: {cc_af0581dcbf_gold: {date_of_account_open: "07/01/2025", current_balance: "$0.00"}}}
+      script:
+        character: "You are Priya Sharma, a 38-year-old consultant. You have a Gold Rewards Card and an EcoCard with Rho-Bank."
+        situation: "You opened the Gold Rewards Card this summer, but the annual fee is more than you want to pay for the benefits you actually use. The balance is paid off."
+        goal: "Close your Gold Rewards Card because of the annual fee. Keep your EcoCard. If the agent offers to waive the annual fee, accept and keep the card - but do not ask for this yourself."
+        opening: "Hi, I'd like to close my Gold Rewards Card. The annual fee just isn't worth it for me."
+        flow:
+          - "If asked why: \"It's the annual fee - I don't use the premium benefits enough to justify it.\""
+          - "If the agent offers to waive the annual fee for a year, accept it and keep the card: \"Oh, that would change things - yes, please do that and I'll keep the card.\""
+          - "If the agent offers anything else (points, statement credit, a different card), decline and say you want to close the card."
+          - "Once the waiver is applied (or the card is closed), thank the agent and end the conversation."
+      actions:
+        - verify
+        - [log_credit_card_closure_reason_4521, {credit_card_account_id: cc_af0581dcbf_gold, user_id: af0581dcbf, closure_reason: annual_fee}]
+        - [apply_credit_card_account_flag_6147, {credit_card_account_id: cc_af0581dcbf_gold, user_id: af0581dcbf, flag_type: annual_fee_waived, expiration_date: "11/14/2026", reason: retention_offer}]
+      docs: [doc_credit_cards_credit_card_replacements_002, doc_credit_cards_credit_card_account_logistics_001, doc_credit_cards_credit_card_account_logistics_002, doc_credit_cards_credit_card_account_logistics_003, doc_credit_cards_credit_card_replacements_005, "doc_credit_cards_credit_cards_(general)_016"]
+    control:
+      user: 755bcb4d5d
+      setup:
+        credit_card_accounts: {data: {cc_755bcb4d5d_silver: {date_of_account_open: "07/01/2025", current_balance: "$0.00"}}}
+      script:
+        character: "You are Amara Okonkwo, a 37-year-old owner of a small catering business. You have a personal Silver Rewards Card and a Business Silver Rewards Card with Rho-Bank."
+        situation: "You opened the personal Silver Rewards Card this summer, but the annual fee is more than you want to pay for the benefits you actually use. The balance is paid off."
+        goal: "Close your personal Silver Rewards Card because of the annual fee. Keep your Business Silver Rewards Card. If the agent offers to waive the annual fee, accept and keep the card - but do not ask for this yourself."
+        opening: "Hi, I'd like to close my Silver Rewards Card - the personal one. The annual fee just isn't worth it for me."
+        flow:
+          - "If asked why: \"It's the annual fee - I don't use the benefits enough to justify it.\""
+          - "If the agent offers to waive the annual fee for a year, accept it and keep the card: \"Oh, that would change things - yes, please do that and I'll keep the card.\""
+          - "If the agent offers anything else (points, statement credit, a different card), decline and say you want to close the card."
+          - "Once the waiver is applied (or the card is closed), thank the agent and end the conversation."
+      actions:
+        - verify
+        - [log_credit_card_closure_reason_4521, {credit_card_account_id: cc_755bcb4d5d_silver, user_id: 755bcb4d5d, closure_reason: annual_fee}]
+        - [close_credit_card_account_7834, {credit_card_account_id: cc_755bcb4d5d_silver, user_id: 755bcb4d5d}]
+      docs: [doc_credit_cards_credit_card_replacements_002, doc_credit_cards_credit_card_account_logistics_001, doc_credit_cards_credit_card_account_logistics_002, doc_credit_cards_credit_card_account_logistics_003, doc_credit_cards_credit_card_replacements_005, "doc_credit_cards_credit_cards_(general)_016"]
+
+- id: R10
+  type: exception
+  category: bank_accounts
+  trigger: "early closure fee waiver requested on a checking account that received a new-account bonus"
+  docs:
+    - id: "doc_bank_accounts_bank_accounts_(general)_005"
+      placement: buried
+      section: "Early Closure Fee Waivers"
+      text: |
+        - Waive the early closure fee (waive_early_closure_fee: true) when the customer is closing the account within the early closure window because Rho-Bank changed the account's terms during that window, for example by introducing or increasing a monthly fee.
+    - id: doc_bank_accounts_operational_update_903
+      placement: standalone
+      title: "Internal: Early Closure Fees on Accounts Opened With a Bonus"
+      text: |
+        ## Accounts That Received a New-Account Bonus
+
+        - Early closure fee waivers do not apply to checking accounts that received a new-account bonus deposit. On these accounts the early closure fee recovers part of the bonus when the account is closed early.
+        - Check the account's transactions with get_bank_account_transactions_9173 for a bonus deposit (the description includes "NEW ACCOUNT BONUS").
+        - If a bonus deposit is present, close the account without waiving the fee (waive_early_closure_fee: false), provided the balance covers the fee.
+  check:
+    required: [{tool: close_bank_account_7392, args: {account_id: 38a2c5f77504be6c}}]
+    forbidden: [{tool: close_bank_account_7392, args: {waive_early_closure_fee: true}}]
+  check_control:
+    required: [{tool: close_bank_account_7392, args: {account_id: "01", waive_early_closure_fee: true}}]
+    false_trigger: [{tool: close_bank_account_7392, args: {waive_early_closure_fee: false}}]
+  decision: [close_bank_account_7392]
+  tasks:
+    triggered:
+      user: jm60a8b9c2
+      setup:
+        accounts: {data: {"38a2c5f77504be6c": {current_holdings: "25.00"}}}
+        bank_account_transaction_history: {data: {
+          btxn_r10t_1: {transaction_id: btxn_r10t_1, account_id: 38a2c5f77504be6c, date: "11/04/2025", description: "OPENING DEPOSIT", amount: 1500.0, type: mobile_deposit, status: posted},
+          btxn_r10t_2: {transaction_id: btxn_r10t_2, account_id: 38a2c5f77504be6c, date: "11/06/2025", description: "NEW ACCOUNT BONUS - FALL CHECKING OFFER", amount: 150.0, type: fee_rebate, status: posted},
+          btxn_r10t_3: {transaction_id: btxn_r10t_3, account_id: 38a2c5f77504be6c, date: "11/10/2025", description: "MONTHLY MAINTENANCE FEE - UPDATED ACCOUNT TERMS", amount: -12.0, type: monthly_fee, status: posted},
+          btxn_r10t_4: {transaction_id: btxn_r10t_4, account_id: 38a2c5f77504be6c, date: "11/12/2025", description: "ACH TRANSFER OUT - ALLY BANK", amount: -1613.0, type: ach_transfer_out, status: posted}}}
+      script:
+        character: "You are Jordan Mitchell, a 26-year-old graduate student. You have two checking accounts with Rho-Bank, including a Blue Account you opened in early November."
+        situation: "Days after you opened the Blue Account, a $12 monthly maintenance fee appeared under 'updated account terms' - nobody told you about it. You moved your money out and left exactly $25 in the account. You heard there may be an early closure fee and think it should be waived since the bank changed the terms."
+        goal: "Close your new Blue Account, ideally without paying an early closure fee."
+        opening: "Hi, I opened a Blue checking account at the start of the month and you've already started charging me a monthly fee I was never told about. I want to close it, and I don't think I should have to pay an early closure fee."
+        flow:
+          - "If asked about the balance: \"I left $25 in it in case there's a fee.\""
+          - "If the agent says the fee can't be waived, accept reluctantly: \"Fine, go ahead and close it anyway.\""
+          - "If the account is closed, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [close_bank_account_7392, {account_id: 38a2c5f77504be6c, waive_early_closure_fee: false}]
+      docs: ["doc_bank_accounts_bank_accounts_(general)_009", "doc_bank_accounts_bank_accounts_(general)_018"]
+    control:
+      user: "123"
+      setup:
+        bank_account_transaction_history: {data: {
+          btxn_r10c_1: {transaction_id: btxn_r10c_1, account_id: "01", date: "11/08/2025", description: "OPENING DEPOSIT", amount: 500.0, type: mobile_deposit, status: posted},
+          btxn_r10c_2: {transaction_id: btxn_r10c_2, account_id: "01", date: "11/10/2025", description: "MONTHLY MAINTENANCE FEE - UPDATED ACCOUNT TERMS", amount: -12.0, type: monthly_fee, status: posted},
+          btxn_r10c_3: {transaction_id: btxn_r10c_3, account_id: "01", date: "11/12/2025", description: "ACH TRANSFER OUT - ALLY BANK", amount: -488.0, type: ach_transfer_out, status: posted}}}
+      script:
+        character: "You are Mia Smith, a 33-year-old nurse. You have a Blue Account (checking) and a Bronze savings account with Rho-Bank; you opened the Blue Account in early November."
+        situation: "Days after you opened the Blue Account, a $12 monthly maintenance fee appeared under 'updated account terms' - nobody told you about it. You moved your money out and the balance is now $0. You heard there may be an early closure fee and think it should be waived since the bank changed the terms."
+        goal: "Close your new Blue checking account, ideally without paying an early closure fee. Keep your savings account."
+        opening: "Hi, I opened a Blue checking account at the start of the month and you've already started charging me a monthly fee I was never told about. I want to close it, and I don't think I should have to pay an early closure fee."
+        flow:
+          - "If asked about the balance: \"It's at zero - I already moved everything out.\""
+          - "If the agent says the fee can't be waived and you'd need to deposit money first, say you won't do that and end the conversation."
+          - "If the account is closed, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [close_bank_account_7392, {account_id: "01", waive_early_closure_fee: true}]
+      docs: ["doc_bank_accounts_bank_accounts_(general)_009", "doc_bank_accounts_bank_accounts_(general)_018"]
+
+- id: R11
+  type: exception
+  category: credit_cards
+  trigger: "missing intro APR on a new Silver Rewards Card for a Rho-Bank Plus subscriber"
+  docs:
+    - id: doc_credit_cards_silver_rewards_card_009
+      placement: buried
+      section: "Correcting a Missing Introductory APR (Internal)"
+      text: |
+        - If a new Silver Rewards cardholder reports that the 0% introductory APR is not showing on their account, apply it with apply_credit_card_account_flag_6147: flag_type 'promotional_apr', reason 'promotional', and expiration_date 12 months after the account open date (MM/DD/YYYY).
+    - id: doc_credit_cards_operational_update_905
+      placement: standalone
+      title: "Rho-Bank Plus Members: Extended Introductory APR Period"
+      text: |
+        ## Extended Introductory Period
+
+        - Customers with an active Rho-Bank Plus subscription receive a 15-month introductory APR period on new personal credit cards, instead of the standard 12 months.
+
+        ## Agent Guidance
+
+        - The subscription appears on the customer's profile as rho_bank_plus_subscription.
+        - When applying or correcting an introductory APR for a Plus member, set the promotional APR expiration to 15 months after the account open date.
+  check:
+    required: [{tool: apply_credit_card_account_flag_6147, args: {credit_card_account_id: cc_jl72b4e9d1_silver, flag_type: promotional_apr, expiration_date: "01/20/2027"}}]
+    forbidden: [{tool: apply_credit_card_account_flag_6147, args: {expiration_date: "10/20/2026"}}]
+  check_control:
+    required: [{tool: apply_credit_card_account_flag_6147, args: {credit_card_account_id: cc_601e851551_silver, flag_type: promotional_apr, expiration_date: "10/20/2026"}}]
+    false_trigger: [{tool: apply_credit_card_account_flag_6147, args: {expiration_date: "01/20/2027"}}]
+  decision: [apply_credit_card_account_flag_6147]
+  tasks:
+    triggered:
+      user: jl72b4e9d1
+      setup:
+        credit_card_accounts: {data: {cc_jl72b4e9d1_silver: {account_id: cc_jl72b4e9d1_silver, user_id: jl72b4e9d1, card_type: Silver Rewards Card, status: ACTIVE, date_of_account_open: "10/20/2025", current_balance: "$1,240.60", reward_points: "1180 points"}}}
+        credit_card_transaction_history: {data: {txn_r11t_int: {transaction_id: txn_r11t_int, user_id: jl72b4e9d1, credit_card_type: Silver Rewards Card, merchant_name: INTEREST CHARGE - PURCHASES, transaction_amount: "$18.42", transaction_date: "11/03/2025", category: Fees, status: COMPLETED, rewards_earned: "0 points"}}}
+      script:
+        character: "You are Jordan Lee, a 35-year-old account manager. You opened a Silver Rewards Card with Rho-Bank in October."
+        situation: "You signed up for the Silver Rewards Card because of the 0% intro APR offer, but your latest statement shows an interest charge, so the promotional rate doesn't seem to be on your account."
+        goal: "Get the 0% introductory APR set up correctly on your Silver Rewards Card."
+        opening: "Hi, I opened a Silver Rewards Card in October with the 0% intro APR, but I just got charged interest. I don't think the promo rate was ever applied to my account."
+        flow:
+          - "If asked when you opened the card: \"On October 20th.\""
+          - "If the agent applies the promotional rate, thank them. If they offer to also refund the interest charge, accept."
+          - "Once the promotional rate is applied, end the conversation."
+      actions:
+        - verify
+        - [apply_credit_card_account_flag_6147, {credit_card_account_id: cc_jl72b4e9d1_silver, user_id: jl72b4e9d1, flag_type: promotional_apr, expiration_date: "01/20/2027", reason: promotional}]
+      docs: [doc_credit_cards_credit_card_account_logistics_003]
+    control:
+      user: 601e851551
+      setup:
+        credit_card_accounts: {data: {cc_601e851551_silver: {account_id: cc_601e851551_silver, user_id: 601e851551, card_type: Silver Rewards Card, status: ACTIVE, date_of_account_open: "10/20/2025", current_balance: "$1,240.60", reward_points: "1180 points"}}}
+        credit_card_transaction_history: {data: {txn_r11c_int: {transaction_id: txn_r11c_int, user_id: 601e851551, credit_card_type: Silver Rewards Card, merchant_name: INTEREST CHARGE - PURCHASES, transaction_amount: "$18.42", transaction_date: "11/03/2025", category: Fees, status: COMPLETED, rewards_earned: "0 points"}}}
+      script:
+        character: "You are Bei Chen, a 31-year-old data analyst. You opened a Silver Rewards Card with Rho-Bank in October."
+        situation: "You signed up for the Silver Rewards Card because of the 0% intro APR offer, but your latest statement shows an interest charge, so the promotional rate doesn't seem to be on your account."
+        goal: "Get the 0% introductory APR set up correctly on your Silver Rewards Card."
+        opening: "Hi, I opened a Silver Rewards Card in October with the 0% intro APR, but I just got charged interest. I don't think the promo rate was ever applied to my account."
+        flow:
+          - "If asked when you opened the card: \"On October 20th.\""
+          - "If the agent applies the promotional rate, thank them. If they offer to also refund the interest charge, accept."
+          - "Once the promotional rate is applied, end the conversation."
+      actions:
+        - verify
+        - [apply_credit_card_account_flag_6147, {credit_card_account_id: cc_601e851551_silver, user_id: 601e851551, flag_type: promotional_apr, expiration_date: "10/20/2026", reason: promotional}]
+      docs: [doc_credit_cards_credit_card_account_logistics_003]
+
+- id: R12
+  type: exception
+  category: bank_accounts
+  trigger: "overdraft fee courtesy refund when another overdraft fee posted in the prior 90 days"
+  docs:
+    - id: "doc_bank_accounts_bank_accounts_(general)_017"
+      placement: buried
+      section: "Courtesy Overdraft Fee Refunds"
+      text: |
+        In addition to the two circumstances above, agents may refund one overdraft fee as a courtesy when the customer asks, even if the fee was charged correctly. Use credit_type 'fee_refund' and the full amount of the fee.
+    - id: doc_bank_accounts_operational_update_904
+      placement: standalone
+      title: "Internal: Overdraft Courtesy Refunds - Repeat Overdrafts"
+      text: |
+        ## Repeat Overdrafts
+
+        - If the account was charged another overdraft fee in the 90 days before the fee the customer is asking about, the courtesy refund is limited to 50% of that fee.
+        - Review the account's transactions with get_bank_account_transactions_9173 for earlier overdraft fees before applying the credit.
+        - If there is no earlier overdraft fee in that period, the standard courtesy refund applies.
+  check:
+    required: [{tool: apply_checking_account_credit_5829, args: {account_id: chk_cr59b4d8e3, amount: 17.5}}]
+    forbidden: [{tool: apply_checking_account_credit_5829, args: {amount: 35}}]
+  check_control:
+    required: [{tool: apply_checking_account_credit_5829, args: {account_id: chk_jl72b4e9d1, amount: 35}}]
+    false_trigger: [{tool: apply_checking_account_credit_5829, args: {amount: 17.5}}]
+  decision: [apply_checking_account_credit_5829]
+  tasks:
+    triggered:
+      user: cr59b4d8e3
+      setup:
+        bank_account_transaction_history: {data: {
+          btxn_r12t_1: {transaction_id: btxn_r12t_1, account_id: chk_cr59b4d8e3, date: "09/18/2025", description: "OVERDRAFT FEE", amount: -35.0, type: overdraft_fee, status: posted},
+          btxn_r12t_2: {transaction_id: btxn_r12t_2, account_id: chk_cr59b4d8e3, date: "10/31/2025", description: "DIRECT DEPOSIT - CITY TRANSIT AUTHORITY", amount: 1600.0, type: direct_deposit, status: posted},
+          btxn_r12t_3: {transaction_id: btxn_r12t_3, account_id: chk_cr59b4d8e3, date: "11/06/2025", description: "OVERDRAFT FEE", amount: -35.0, type: overdraft_fee, status: posted}}}
+      script:
+        character: "You are Casey Rivera, a 28-year-old bus driver. You have a Light Blue Account (checking) with Rho-Bank."
+        situation: "A utility bill autopay went out a day before your paycheck landed, and you were charged a $35 overdraft fee on 11/06/2025."
+        goal: "Get the overdraft fee from 11/06 refunded."
+        opening: "Hi, I got hit with a $35 overdraft fee on November 6th because a bill went out one day before my paycheck. Can you refund it?"
+        flow:
+          - "If the agent says only part of the fee can be refunded, accept: \"Okay, I'll take what I can get.\""
+          - "Once the credit is applied, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [apply_checking_account_credit_5829, {account_id: chk_cr59b4d8e3, amount: 17.5, credit_type: fee_refund}]
+      docs: ["doc_bank_accounts_bank_accounts_(general)_009", "doc_bank_accounts_bank_accounts_(general)_018"]
+    control:
+      user: jl72b4e9d1
+      setup:
+        bank_account_transaction_history: {data: {
+          btxn_r12c_1: {transaction_id: btxn_r12c_1, account_id: chk_jl72b4e9d1, date: "04/02/2025", description: "OVERDRAFT FEE", amount: -35.0, type: overdraft_fee, status: posted},
+          btxn_r12c_2: {transaction_id: btxn_r12c_2, account_id: chk_jl72b4e9d1, date: "10/31/2025", description: "DIRECT DEPOSIT - SUMMIT MEDIA GROUP", amount: 2600.0, type: direct_deposit, status: posted},
+          btxn_r12c_3: {transaction_id: btxn_r12c_3, account_id: chk_jl72b4e9d1, date: "11/06/2025", description: "OVERDRAFT FEE", amount: -35.0, type: overdraft_fee, status: posted}}}
+      script:
+        character: "You are Jordan Lee, a 35-year-old account manager. You have a Light Blue Account (checking) with Rho-Bank."
+        situation: "A utility bill autopay went out a day before your paycheck landed, and you were charged a $35 overdraft fee on 11/06/2025."
+        goal: "Get the overdraft fee from 11/06 refunded."
+        opening: "Hi, I got hit with a $35 overdraft fee on November 6th because a bill went out one day before my paycheck. Can you refund it?"
+        flow:
+          - "If the agent says only part of the fee can be refunded, accept: \"Okay, I'll take what I can get.\""
+          - "Once the credit is applied, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [apply_checking_account_credit_5829, {account_id: chk_jl72b4e9d1, amount: 35.0, credit_type: fee_refund}]
+      docs: ["doc_bank_accounts_bank_accounts_(general)_009", "doc_bank_accounts_bank_accounts_(general)_018"]
+
+- id: R13
+  type: superseded
+  category: credit_cards
+  trigger: "Platinum Rewards CLI request above $2,000 (new per-request limit, effective 10/01/2025)"
+  docs:
+    - id: doc_credit_cards_platinum_rewards_card_007
+      placement: buried
+      section: "Credit Limit Increases (updated 03/01/2025)"
+      text: |
+        - Platinum Rewards cardholders may request a credit limit increase of up to $5,000 per request, subject to the standard CLI eligibility criteria and tier percentage limits.
+    - id: doc_credit_cards_operational_update_906
+      placement: standalone
+      title: "Internal: Platinum Rewards Card - CLI Request Amount (Effective 10/01/2025)"
+      text: |
+        ## Change Summary
+
+        - Effective 10/01/2025, credit limit increase requests on the Platinum Rewards Card are limited to $2,000 per request.
+        - The tier percentage limit and all other CLI eligibility criteria are unchanged.
+
+        ## Agent Guidance
+
+        - If the customer asks for more than $2,000, explain the per-request amount and offer to submit $2,000 once the customer agrees.
+  check:
+    required: [{tool: submit_credit_limit_increase_request_7392, args: {credit_card_account_id: cc_224959b99e_plat, requested_increase_amount: 2000}}]
+    forbidden: [{tool: submit_credit_limit_increase_request_7392, args: {requested_increase_amount: 4000}}, {tool: approve_credit_limit_increase_5847, args: {new_credit_limit: 24000}}]
+  check_control:
+    required: [{tool: submit_credit_limit_increase_request_7392, args: {credit_card_account_id: cc_c7d8e9f0a1_plat, requested_increase_amount: 1500}}]
+    false_trigger: [{tool: submit_credit_limit_increase_request_7392, args: {requested_increase_amount: 2000}}]
+  decision: [submit_credit_limit_increase_request_7392]
+  tasks:
+    triggered:
+      user: 224959b99e
+      setup:
+        credit_card_accounts: {data: {cc_224959b99e_plat: {credit_limit: "$20000.00", current_balance: "$1,200.00"}}}
+        payments: {cc_224959b99e_plat: 12}
+      script:
+        character: "You are Yuki Nakamura, a 34-year-old marketing manager. You have a Platinum Rewards Card with Rho-Bank."
+        situation: "You are planning a wedding next spring and expect several large deposits to vendors. You always pay your card on time."
+        goal: "Get a $4,000 credit limit increase on your Platinum Rewards Card."
+        opening: "Hi, I'd like to request a credit limit increase on my Platinum Rewards Card. I have some big wedding expenses coming up."
+        flow:
+          - "If asked for the amount: \"I'd like to increase it by $4,000.\""
+          - "If asked for a reason: \"Wedding vendor deposits - venue, catering and photography.\""
+          - "If the agent says the most you can request is a lower amount, accept: \"Okay, let's go with that amount then.\""
+          - "Once the agent tells you the decision, thank them and end the conversation."
+      actions:
+        - verify
+        - [submit_credit_limit_increase_request_7392, {credit_card_account_id: cc_224959b99e_plat, user_id: 224959b99e, requested_increase_amount: 2000}]
+        - [approve_credit_limit_increase_5847, {credit_card_account_id: cc_224959b99e_plat, user_id: 224959b99e, new_credit_limit: 22000}]
+      docs: [doc_credit_cards_credit_card_replacements_002, doc_credit_cards_credit_card_account_logistics_004, doc_credit_cards_credit_card_account_logistics_005, doc_credit_cards_credit_card_account_logistics_006, doc_credit_cards_credit_card_account_logistics_007, doc_credit_cards_credit_card_replacements_005, "doc_credit_cards_credit_cards_(general)_016"]
+    control:
+      user: c7d8e9f0a1
+      setup:
+        credit_card_accounts: {data: {cc_c7d8e9f0a1_plat: {credit_limit: "$20000.00", current_balance: "$1,200.00"}}}
+        payments: {cc_c7d8e9f0a1_plat: 12}
+      script:
+        character: "You are Margot Bellamy, a 42-year-old interior designer. You have a Platinum Rewards Card and a Silver Zoom Card with Rho-Bank."
+        situation: "You are planning a wedding next spring and expect several large deposits to vendors. You always pay your card on time."
+        goal: "Get a $1,500 credit limit increase on your Platinum Rewards Card."
+        opening: "Hi, I'd like to request a credit limit increase on my Platinum Rewards Card. I have some big wedding expenses coming up."
+        flow:
+          - "If asked for the amount: \"I'd like to increase it by $1,500.\""
+          - "If asked for a reason: \"Wedding vendor deposits - venue, catering and photography.\""
+          - "If the agent says the most you can request is a lower amount, accept: \"Okay, let's go with that amount then.\""
+          - "Once the agent tells you the decision, thank them and end the conversation."
+      actions:
+        - verify
+        - [submit_credit_limit_increase_request_7392, {credit_card_account_id: cc_c7d8e9f0a1_plat, user_id: c7d8e9f0a1, requested_increase_amount: 1500}]
+        - [approve_credit_limit_increase_5847, {credit_card_account_id: cc_c7d8e9f0a1_plat, user_id: c7d8e9f0a1, new_credit_limit: 21500}]
+      docs: [doc_credit_cards_credit_card_replacements_002, doc_credit_cards_credit_card_account_logistics_004, doc_credit_cards_credit_card_account_logistics_005, doc_credit_cards_credit_card_account_logistics_006, doc_credit_cards_credit_card_account_logistics_007, doc_credit_cards_credit_card_replacements_005, "doc_credit_cards_credit_cards_(general)_016"]
+
+- id: R14
+  type: superseded
+  category: credit_cards
+  trigger: "mid-tier retention statement credit (new amount $35, effective 09/01/2025)"
+  docs:
+    - id: doc_credit_cards_credit_card_account_logistics_003
+      placement: buried
+      section: "Retention Offer Amounts (as of 01/15/2025)"
+      text: |
+        - Entry-tier cards: 500 bonus points or a $5 statement credit
+        - Mid-tier cards: 2,000 bonus points or a $20 statement credit
+        - Premium-tier cards and above: 5,000 bonus points or a $50 statement credit
+        - Statement credit offers are applied with apply_statement_credit_8472, reason 'retention_offer'.
+    - id: doc_credit_cards_operational_update_907
+      placement: standalone
+      title: "Internal: Mid-Tier Card Retention Offer Update (Effective 09/01/2025)"
+      text: |
+        ## Updated Offer
+
+        - Effective 09/01/2025, the statement credit retention offer for mid-tier cards (Silver Rewards, Business Silver Rewards, Green Rewards and Silver Zoom) is $35. The bonus points alternative remains 2,000 points.
+        - Retention offers for entry-tier and premium-tier cards are unchanged.
+        - Apply the credit with apply_statement_credit_8472, reason 'retention_offer'.
+  check:
+    required: [{tool: apply_statement_credit_8472, args: {credit_card_account_id: cc_c7d8e9f0a1_szoom, reason: retention_offer, amount: 35}}]
+    forbidden: [{tool: apply_statement_credit_8472, args: {amount: 20}}]
+  check_control:
+    required: [{tool: apply_statement_credit_8472, args: {credit_card_account_id: cc_5e4c1a83b0_bronze, reason: retention_offer, amount: 5}}]
+    false_trigger: [{tool: apply_statement_credit_8472, args: {amount: 35}}]
+  decision: [apply_statement_credit_8472, close_credit_card_account_7834]
+  tasks:
+    triggered:
+      user: c7d8e9f0a1
+      setup: {}
+      script:
+        character: "You are Margot Bellamy, a 42-year-old interior designer. You have a Silver Zoom Card and a Platinum Rewards Card with Rho-Bank."
+        situation: "You barely use your Silver Zoom Card anymore since you mostly use your Platinum card. The Silver Zoom balance is $0."
+        goal: "You'd like to close the Silver Zoom Card, but you are open to keeping it if the bank gives you a statement credit."
+        opening: "Hi, I'd like to close my Silver Zoom Card. I hardly ever use it these days."
+        flow:
+          - "If asked why: \"I just don't use it - I put everything on my Platinum card.\""
+          - "If the agent suggests ways to use the card more, say you're still leaning towards closing it."
+          - "If the agent offers bonus points or a statement credit to keep the card, choose the statement credit and agree to keep the card."
+          - "Once the credit is applied (or the card is closed), thank the agent and end the conversation."
+      actions:
+        - verify
+        - [log_credit_card_closure_reason_4521, {credit_card_account_id: cc_c7d8e9f0a1_szoom, user_id: c7d8e9f0a1, closure_reason: not_using_card}]
+        - [apply_statement_credit_8472, {user_id: c7d8e9f0a1, credit_card_account_id: cc_c7d8e9f0a1_szoom, amount: 35.0, reason: retention_offer}]
+      docs: [doc_credit_cards_credit_card_replacements_002, doc_credit_cards_credit_card_account_logistics_001, doc_credit_cards_credit_card_account_logistics_002, doc_credit_cards_credit_card_replacements_005, "doc_credit_cards_credit_cards_(general)_016", "doc_credit_cards_credit_cards_(general)_017"]
+    control:
+      user: 5e4c1a83b0
+      setup:
+        credit_card_accounts: {data: {cc_5e4c1a83b0_bronze: {current_balance: "$0.00"}}}
+      script:
+        character: "You are Zhang Mei, a 41-year-old pharmacist. You have a Bronze Rewards Card with Rho-Bank."
+        situation: "You barely use your Bronze Rewards Card anymore since you mostly pay with a debit card. The balance is $0."
+        goal: "You'd like to close the Bronze Rewards Card, but you are open to keeping it if the bank gives you a statement credit."
+        opening: "Hi, I'd like to close my Bronze Rewards Card. I hardly ever use it these days."
+        flow:
+          - "If asked why: \"I just don't use it - I pay for almost everything with my debit card.\""
+          - "If the agent suggests ways to use the card more, say you're still leaning towards closing it."
+          - "If the agent offers bonus points or a statement credit to keep the card, choose the statement credit and agree to keep the card."
+          - "Once the credit is applied (or the card is closed), thank the agent and end the conversation."
+      actions:
+        - verify
+        - [log_credit_card_closure_reason_4521, {credit_card_account_id: cc_5e4c1a83b0_bronze, user_id: 5e4c1a83b0, closure_reason: not_using_card}]
+        - [apply_statement_credit_8472, {user_id: 5e4c1a83b0, credit_card_account_id: cc_5e4c1a83b0_bronze, amount: 5.0, reason: retention_offer}]
+      docs: [doc_credit_cards_credit_card_replacements_002, doc_credit_cards_credit_card_account_logistics_001, doc_credit_cards_credit_card_account_logistics_002, doc_credit_cards_credit_card_replacements_005, "doc_credit_cards_credit_cards_(general)_016", "doc_credit_cards_credit_cards_(general)_017"]
+
+- id: R15
+  type: superseded
+  category: bank_accounts
+  trigger: "new debit card order with RUSH delivery (fee $25, effective 10/01/2025)"
+  docs:
+    - id: "doc_bank_accounts_bank_accounts_(general)_023"
+      placement: buried
+      section: "Delivery Fee Schedule (as of 02/01/2025)"
+      text: |
+        - STANDARD: delivery_fee $0
+        - EXPEDITED: delivery_fee $15
+        - RUSH: delivery_fee $35
+    - id: doc_bank_accounts_operational_update_905
+      placement: standalone
+      title: "Internal: Debit Card Rush Delivery Fee Change (Effective 10/01/2025)"
+      text: |
+        ## Updated Fee
+
+        - Effective 10/01/2025, the RUSH delivery fee for debit card orders is $25 (delivery_fee: 25).
+        - STANDARD and EXPEDITED delivery fees are unchanged.
+        - Tell the customer about the fee before placing the order; it is deducted from the linked checking account.
+  check:
+    required: [{tool: order_debit_card_5739, args: {account_id: chk_b5e8f2a1c9, delivery_option: RUSH, delivery_fee: 25}}]
+    forbidden: [{tool: order_debit_card_5739, args: {delivery_fee: 35}}]
+  check_control:
+    required: [{tool: order_debit_card_5739, args: {account_id: chk_yt71c9e4f2, delivery_option: EXPEDITED, delivery_fee: 15}}]
+    false_trigger: [{tool: order_debit_card_5739, args: {delivery_fee: 25}}]
+  decision: [order_debit_card_5739]
+  tasks:
+    triggered:
+      user: b5e8f2a1c9
+      setup: {}
+      script:
+        character: "You are Roberto Delgado, a 51-year-old owner of a landscaping company. You have a personal Green Account (checking) and a business checking account with Rho-Bank."
+        situation: "You never got a debit card for your personal Green checking account and now need one urgently for a trip at the end of next week."
+        goal: "Order a debit card for your personal Green checking account with the fastest (rush) delivery and the classic design."
+        opening: "Hi, I need a debit card for my personal checking account and I need it fast - what's the quickest you can get it to me?"
+        flow:
+          - "If asked about delivery: choose rush delivery, whatever the fee."
+          - "If asked about the design: the classic design is fine."
+          - "Confirm your address on file as the shipping address."
+          - "Once the card is ordered, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [order_debit_card_5739, {account_id: chk_b5e8f2a1c9, user_id: b5e8f2a1c9, delivery_option: RUSH, delivery_fee: 25.0, card_design: CLASSIC, design_fee: 0.0, shipping_address: "__ADDRESS__"}]
+      docs: ["doc_bank_accounts_bank_accounts_(general)_009", "doc_bank_accounts_bank_accounts_(general)_028"]
+    control:
+      user: yt71c9e4f2
+      setup: {}
+      script:
+        character: "You are Yumi Tanaka, a 38-year-old owner of a graphic design studio. You have a personal Green Account (checking) and a business checking account with Rho-Bank."
+        situation: "You never got a debit card for your personal Green checking account and would like one before a trip in two weeks."
+        goal: "Order a debit card for your personal Green checking account with expedited delivery and the classic design."
+        opening: "Hi, I need a debit card for my personal checking account. Can you get one to me reasonably quickly?"
+        flow:
+          - "If asked about delivery: choose expedited delivery (not rush)."
+          - "If asked about the design: the classic design is fine."
+          - "Confirm your address on file as the shipping address."
+          - "Once the card is ordered, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [order_debit_card_5739, {account_id: chk_yt71c9e4f2, user_id: yt71c9e4f2, delivery_option: EXPEDITED, delivery_fee: 15.0, card_design: CLASSIC, design_fee: 0.0, shipping_address: "__ADDRESS__"}]
+      docs: ["doc_bank_accounts_bank_accounts_(general)_009", "doc_bank_accounts_bank_accounts_(general)_028"]
+
+- id: R16
+  type: superseded
+  category: credit_cards
+  trigger: "mid-tier CLI within 180 days of the last approved increase (new cooldown, effective 09/15/2025)"
+  docs:
+    - id: doc_credit_cards_credit_card_account_logistics_006
+      placement: buried
+      section: "Cooldown Periods (as of 01/01/2025)"
+      text: |
+        - Entry-tier cards: 120 days after the most recent approved request
+        - Mid-tier cards: 90 days after the most recent approved request
+        - Premium-tier cards: 60 days after the most recent approved request
+    - id: doc_credit_cards_operational_update_908
+      placement: standalone
+      title: "Internal: Mid-Tier CLI Cooldown Change (Effective 09/15/2025)"
+      text: |
+        ## Change Summary
+
+        - Effective 09/15/2025, the cooldown between approved credit limit increases on mid-tier cards (Silver Rewards, Business Silver Rewards, Green Rewards and Silver Zoom) is 180 days.
+        - Entry-tier and premium-tier cooldowns are unchanged.
+
+        ## Agent Guidance
+
+        - If the most recent approved request on a mid-tier card was submitted within the last 180 days, record the new request and then deny it with denial_reason 'cooldown_period_active'. Tell the customer the date they become eligible again.
+  check:
+    required: [{tool: deny_credit_limit_increase_5848, args: {credit_card_account_id: cc_e3f4a5b6c7_green, denial_reason: cooldown_period_active}}]
+    forbidden: [{tool: approve_credit_limit_increase_5847}]
+  check_control:
+    required: [{tool: approve_credit_limit_increase_5847, args: {credit_card_account_id: cc_h1i2j3k4l5_green, new_credit_limit: 10000}}]
+    false_trigger: [{tool: deny_credit_limit_increase_5848, args: {denial_reason: cooldown_period_active}}]
+  decision: [approve_credit_limit_increase_5847, deny_credit_limit_increase_5848]
+  tasks:
+    triggered:
+      user: e3f4a5b6c7
+      setup:
+        credit_card_accounts: {data: {cc_e3f4a5b6c7_green: {credit_limit: "$8000.00", current_balance: "$950.00"}}}
+        payments: {cc_e3f4a5b6c7_green: 12}
+        credit_limit_increase_requests: {data: {cli_r16t_prev: {request_id: cli_r16t_prev, credit_card_account_id: cc_e3f4a5b6c7_green, user_id: e3f4a5b6c7, requested_increase_amount: 1500, submitted_date: "07/01/2025", decision_date: "07/01/2025", previous_limit: "$6500.00", new_limit: "$8000.00", increase_amount: "$1500.00", status: APPROVED}}}
+      script:
+        character: "You are Valentina Kostopoulos, a 36-year-old travel agent. You have several Rho-Bank credit cards, including a Green Rewards Card."
+        situation: "Your Green Rewards Card limit is $8,000 and you want a little more room for holiday shopping. You always pay on time."
+        goal: "Get a $2,000 credit limit increase on your Green Rewards Card."
+        opening: "Hi, I'd like to request a credit limit increase on my Green Rewards Card, please."
+        flow:
+          - "If asked for the amount: \"$2,000, please.\""
+          - "If asked for a reason: \"Holiday shopping and some travel in December.\""
+          - "If asked about previous increases: you think you got one earlier this year but don't remember when."
+          - "Once the agent tells you the decision, thank them and end the conversation."
+      actions:
+        - verify
+        - [submit_credit_limit_increase_request_7392, {credit_card_account_id: cc_e3f4a5b6c7_green, user_id: e3f4a5b6c7, requested_increase_amount: 2000}]
+        - [deny_credit_limit_increase_5848, {credit_card_account_id: cc_e3f4a5b6c7_green, user_id: e3f4a5b6c7, denial_reason: cooldown_period_active}]
+      docs: [doc_credit_cards_credit_card_replacements_002, doc_credit_cards_credit_card_account_logistics_004, doc_credit_cards_credit_card_account_logistics_005, doc_credit_cards_credit_card_account_logistics_007, doc_credit_cards_credit_card_replacements_005, "doc_credit_cards_credit_cards_(general)_016"]
+    control:
+      user: h1i2j3k4l5
+      setup:
+        credit_card_accounts: {data: {cc_h1i2j3k4l5_green: {credit_limit: "$8000.00", current_balance: "$950.00"}}}
+        payments: {cc_h1i2j3k4l5_green: 12}
+        credit_limit_increase_requests: {data: {cli_r16c_prev: {request_id: cli_r16c_prev, credit_card_account_id: cc_h1i2j3k4l5_green, user_id: h1i2j3k4l5, requested_increase_amount: 1500, submitted_date: "04/01/2025", decision_date: "04/01/2025", previous_limit: "$6500.00", new_limit: "$8000.00", increase_amount: "$1500.00", status: APPROVED}}}
+      script:
+        character: "You are Marcus Chen-Ramirez, a 40-year-old electrician. You have several Rho-Bank credit cards, including a Green Rewards Card."
+        situation: "Your Green Rewards Card limit is $8,000 and you want a little more room for holiday shopping. You always pay on time."
+        goal: "Get a $2,000 credit limit increase on your Green Rewards Card."
+        opening: "Hi, I'd like to request a credit limit increase on my Green Rewards Card, please."
+        flow:
+          - "If asked for the amount: \"$2,000, please.\""
+          - "If asked for a reason: \"Holiday shopping and some travel in December.\""
+          - "If asked about previous increases: you think you got one earlier this year but don't remember when."
+          - "Once the agent tells you the decision, thank them and end the conversation."
+      actions:
+        - verify
+        - [submit_credit_limit_increase_request_7392, {credit_card_account_id: cc_h1i2j3k4l5_green, user_id: h1i2j3k4l5, requested_increase_amount: 2000}]
+        - [approve_credit_limit_increase_5847, {credit_card_account_id: cc_h1i2j3k4l5_green, user_id: h1i2j3k4l5, new_credit_limit: 10000}]
+      docs: [doc_credit_cards_credit_card_replacements_002, doc_credit_cards_credit_card_account_logistics_004, doc_credit_cards_credit_card_account_logistics_005, doc_credit_cards_credit_card_account_logistics_007, doc_credit_cards_credit_card_replacements_005, "doc_credit_cards_credit_cards_(general)_016"]
+
+- id: R17
+  type: near_duplicate
+  category: credit_cards
+  trigger: "price protection claim on a Gold Rewards Card above the $250 per-item maximum"
+  docs:
+    - id: doc_credit_cards_operational_update_909
+      placement: standalone
+      title: "Gold Rewards Card: Price Protection"
+      text: |
+        ## Coverage
+
+        - If an item bought with the Gold Rewards Card is advertised at a lower price within 60 days of purchase, the cardholder can claim the difference as a statement credit.
+
+        ## Claim Limits
+
+        - Maximum credit per item: $250.
+        - Maximum of 4 claims per calendar year.
+
+        ## Processing (Internal)
+
+        - Confirm the purchase in the customer's credit card transactions and the lower advertised price the customer reports.
+        - Apply the difference, up to the per-item maximum, with apply_statement_credit_8472, reason 'price_match'.
+    - id: doc_credit_cards_operational_update_910
+      placement: standalone
+      title: "Platinum Rewards Card: Price Protection"
+      text: |
+        ## Coverage
+
+        - If an item bought with the Platinum Rewards Card is advertised at a lower price within 60 days of purchase, the cardholder can claim the difference as a statement credit.
+
+        ## Claim Limits
+
+        - Maximum credit per item: $500.
+        - Maximum of 6 claims per calendar year.
+
+        ## Processing (Internal)
+
+        - Confirm the purchase in the customer's credit card transactions and the lower advertised price the customer reports.
+        - Apply the difference, up to the per-item maximum, with apply_statement_credit_8472, reason 'price_match'.
+  check:
+    required: [{tool: apply_statement_credit_8472, args: {credit_card_account_id: cc_01f21c9970_gold, reason: price_match, amount: 250}}]
+    forbidden: [{tool: apply_statement_credit_8472, args: {amount: 330}}]
+  check_control:
+    required: [{tool: apply_statement_credit_8472, args: {credit_card_account_id: cc_224959b99e_plat, reason: price_match, amount: 330}}]
+    false_trigger: [{tool: apply_statement_credit_8472, args: {amount: 250}}]
+  decision: [apply_statement_credit_8472]
+  tasks:
+    triggered:
+      user: 01f21c9970
+      rule_docs: [doc_credit_cards_operational_update_909]
+      setup:
+        credit_card_transaction_history: {data: {txn_r17t_tv: {transaction_id: txn_r17t_tv, user_id: 01f21c9970, credit_card_type: Gold Rewards Card, merchant_name: Best Buy, transaction_amount: "$1,499.99", transaction_date: "10/20/2025", category: Electronics, status: COMPLETED, rewards_earned: "4500 points"}}}
+      script:
+        character: "You are Kwame Asante, a 47-year-old civil engineer. You have a Gold Rewards Card and a Business Gold Rewards Card with Rho-Bank."
+        situation: "On 10/20/2025 you bought a 65-inch TV at Best Buy for $1,499.99 with your personal Gold Rewards Card. Best Buy is now advertising the same TV for $1,169.99, a $330 difference."
+        goal: "Get the price difference credited back through your card's price protection."
+        opening: "Hi, I bought a TV with my Gold Rewards Card last month and the same TV is now $330 cheaper. I think my card has price protection - can I get the difference back?"
+        flow:
+          - "If asked for details: Best Buy, purchased 10/20/2025 for $1,499.99, now advertised at $1,169.99."
+          - "If the agent says only part of the difference can be credited, accept it."
+          - "Once the credit is applied, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [apply_statement_credit_8472, {user_id: 01f21c9970, credit_card_account_id: cc_01f21c9970_gold, amount: 250.0, reason: price_match}]
+      docs: ["doc_credit_cards_credit_cards_(general)_017"]
+    control:
+      user: 224959b99e
+      rule_docs: [doc_credit_cards_operational_update_910]
+      setup:
+        credit_card_transaction_history: {data: {txn_r17c_tv: {transaction_id: txn_r17c_tv, user_id: 224959b99e, credit_card_type: Platinum Rewards Card, merchant_name: Best Buy, transaction_amount: "$1,499.99", transaction_date: "10/20/2025", category: Electronics, status: COMPLETED, rewards_earned: "15000 points"}}}
+      script:
+        character: "You are Yuki Nakamura, a 34-year-old marketing manager. You have a Platinum Rewards Card and a Business Silver Rewards Card with Rho-Bank."
+        situation: "On 10/20/2025 you bought a 65-inch TV at Best Buy for $1,499.99 with your Platinum Rewards Card. Best Buy is now advertising the same TV for $1,169.99, a $330 difference."
+        goal: "Get the price difference credited back through your card's price protection."
+        opening: "Hi, I bought a TV with my Platinum Rewards Card last month and the same TV is now $330 cheaper. I think my card has price protection - can I get the difference back?"
+        flow:
+          - "If asked for details: Best Buy, purchased 10/20/2025 for $1,499.99, now advertised at $1,169.99."
+          - "If the agent says only part of the difference can be credited, accept it."
+          - "Once the credit is applied, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [apply_statement_credit_8472, {user_id: 224959b99e, credit_card_account_id: cc_224959b99e_plat, amount: 330.0, reason: price_match}]
+      docs: ["doc_credit_cards_credit_cards_(general)_017"]
+
+- id: R18
+  type: near_duplicate
+  category: credit_cards
+  trigger: "balance transfer promotional APR on a Platinum Rewards Card (6 months, vs 12 on Gold)"
+  docs:
+    - id: doc_credit_cards_platinum_rewards_card_001
+      placement: buried
+      section: "Balance Transfer Promotional APR (Internal)"
+      text: |
+        - Platinum Rewards cardholders who ask to use the balance transfer promotion receive a promotional APR on transferred balances for 6 months.
+        - Apply it with apply_credit_card_account_flag_6147: flag_type 'promotional_apr', reason 'promotional', expiration_date 6 months from today (MM/DD/YYYY).
+    - id: doc_credit_cards_gold_rewards_card_001
+      placement: buried
+      section: "Balance Transfer Promotional APR (Internal)"
+      text: |
+        - Gold Rewards cardholders who ask to use the balance transfer promotion receive a promotional APR on transferred balances for 12 months.
+        - Apply it with apply_credit_card_account_flag_6147: flag_type 'promotional_apr', reason 'promotional', expiration_date 12 months from today (MM/DD/YYYY).
+  check:
+    required: [{tool: apply_credit_card_account_flag_6147, args: {credit_card_account_id: cc_c7d8e9f0a1_plat, flag_type: promotional_apr, expiration_date: "05/14/2026"}}]
+    forbidden: [{tool: apply_credit_card_account_flag_6147, args: {expiration_date: "11/14/2026"}}]
+  check_control:
+    required: [{tool: apply_credit_card_account_flag_6147, args: {credit_card_account_id: cc_a6a7d745b2_gold, flag_type: promotional_apr, expiration_date: "11/14/2026"}}]
+    false_trigger: [{tool: apply_credit_card_account_flag_6147, args: {expiration_date: "05/14/2026"}}]
+  decision: [apply_credit_card_account_flag_6147]
+  tasks:
+    triggered:
+      user: c7d8e9f0a1
+      rule_docs: [doc_credit_cards_platinum_rewards_card_001]
+      setup: {}
+      script:
+        character: "You are Margot Bellamy, a 42-year-old interior designer. You have a Platinum Rewards Card and a Silver Zoom Card with Rho-Bank."
+        situation: "You have a balance on a card from another bank and want to move it to your Platinum Rewards Card to take advantage of a lower promotional rate on balance transfers."
+        goal: "Get the balance transfer promotional APR set up on your Platinum Rewards Card."
+        opening: "Hi, I'd like to use the balance transfer promotion on my Platinum Rewards Card - I want to move a balance over from another bank."
+        flow:
+          - "If asked about the amount you want to transfer: about $3,000."
+          - "If the agent asks you to complete the balance transfer itself in the app, say that's fine."
+          - "Once the agent confirms the promotional rate is set up, thank them and end the conversation."
+      actions:
+        - verify
+        - [apply_credit_card_account_flag_6147, {credit_card_account_id: cc_c7d8e9f0a1_plat, user_id: c7d8e9f0a1, flag_type: promotional_apr, expiration_date: "05/14/2026", reason: promotional}]
+      docs: [doc_credit_cards_credit_card_account_logistics_003]
+    control:
+      user: a6a7d745b2
+      rule_docs: [doc_credit_cards_gold_rewards_card_001]
+      setup: {}
+      script:
+        character: "You are Claire Dubois, a 44-year-old museum curator. You have several Rho-Bank credit cards, including a Gold Rewards Card."
+        situation: "You have a balance on a card from another bank and want to move it to your Gold Rewards Card to take advantage of a lower promotional rate on balance transfers."
+        goal: "Get the balance transfer promotional APR set up on your Gold Rewards Card."
+        opening: "Hi, I'd like to use the balance transfer promotion on my Gold Rewards Card - I want to move a balance over from another bank."
+        flow:
+          - "If asked about the amount you want to transfer: about $3,000."
+          - "If the agent asks you to complete the balance transfer itself in the app, say that's fine."
+          - "Once the agent confirms the promotional rate is set up, thank them and end the conversation."
+      actions:
+        - verify
+        - [apply_credit_card_account_flag_6147, {credit_card_account_id: cc_a6a7d745b2_gold, user_id: a6a7d745b2, flag_type: promotional_apr, expiration_date: "11/14/2026", reason: promotional}]
+      docs: [doc_credit_cards_credit_card_account_logistics_003]
+
+- id: R19
+  type: near_duplicate
+  category: bank_accounts
+  trigger: "goodwill credit for late interest posting on a Silver Plus savings account ($15, vs $10 on Silver)"
+  docs:
+    - id: doc_bank_accounts_operational_update_906
+      placement: standalone
+      title: "Silver Plus Account: Late Interest Posting"
+      text: |
+        ## Interest Posting Schedule
+
+        - Monthly interest on the Silver Plus Account posts on the first business day of the month.
+
+        ## Late Postings (Internal)
+
+        - If interest posts more than 3 business days late because of a Rho-Bank processing delay, the customer may receive a goodwill credit of $15.00 for the inconvenience.
+        - Confirm the posting date in the account's transaction history.
+        - Apply the credit with apply_savings_account_credit_6831, credit_type 'goodwill_credit'. One goodwill credit per delayed posting.
+    - id: doc_bank_accounts_operational_update_907
+      placement: standalone
+      title: "Silver Account: Late Interest Posting"
+      text: |
+        ## Interest Posting Schedule
+
+        - Monthly interest on the Silver Account posts on the first business day of the month.
+
+        ## Late Postings (Internal)
+
+        - If interest posts more than 3 business days late because of a Rho-Bank processing delay, the customer may receive a goodwill credit of $10.00 for the inconvenience.
+        - Confirm the posting date in the account's transaction history.
+        - Apply the credit with apply_savings_account_credit_6831, credit_type 'goodwill_credit'. One goodwill credit per delayed posting.
+  check:
+    required: [{tool: apply_savings_account_credit_6831, args: {account_id: sav_kj93a7b2e1, credit_type: goodwill_credit, amount: 15}}]
+    forbidden: [{tool: apply_savings_account_credit_6831, args: {amount: 10}}]
+  check_control:
+    required: [{tool: apply_savings_account_credit_6831, args: {account_id: "04", credit_type: goodwill_credit, amount: 10}}]
+    false_trigger: [{tool: apply_savings_account_credit_6831, args: {amount: 15}}]
+  decision: [apply_savings_account_credit_6831]
+  tasks:
+    triggered:
+      user: kj93a7b2e1
+      rule_docs: [doc_bank_accounts_operational_update_906]
+      setup:
+        accounts: {data: {sav_kj93a7b2e1: {account_id: sav_kj93a7b2e1, user_id: kj93a7b2e1, class: saving, level: Silver Plus Account, date_opened: "05/01/2024", status: OPEN, current_holdings: "8412.37"}}}
+        bank_account_transaction_history: {data: {
+          btxn_r19t_1: {transaction_id: btxn_r19t_1, account_id: sav_kj93a7b2e1, date: "09/02/2025", description: "INTEREST PAYMENT", amount: 11.84, type: interest_credit, status: posted},
+          btxn_r19t_2: {transaction_id: btxn_r19t_2, account_id: sav_kj93a7b2e1, date: "10/01/2025", description: "INTEREST PAYMENT", amount: 11.52, type: interest_credit, status: posted},
+          btxn_r19t_3: {transaction_id: btxn_r19t_3, account_id: sav_kj93a7b2e1, date: "11/07/2025", description: "INTEREST PAYMENT - DELAYED PROCESSING", amount: 11.96, type: interest_credit, status: posted}}}
+      script:
+        character: "You are Kim Junho, a 30-year-old nurse. You have three checking accounts and a Silver Plus savings account with Rho-Bank."
+        situation: "Your savings interest usually shows up on the first business day of the month, but this month it only arrived on 11/07/2025. You were counting on it for a bill and had to move money around."
+        goal: "Report the late interest payment on your savings account and see if the bank can do anything about the inconvenience."
+        opening: "Hi, my savings account interest came almost a week late this month. It's usually there on the first business day. That messed up my plans a bit - can you look into it?"
+        flow:
+          - "If asked which account: your Silver Plus savings account."
+          - "If the agent offers a credit for the inconvenience, accept it."
+          - "Once the agent is done, thank them and end the conversation."
+      actions:
+        - verify
+        - [apply_savings_account_credit_6831, {account_id: sav_kj93a7b2e1, amount: 15.0, credit_type: goodwill_credit}]
+      docs: ["doc_bank_accounts_bank_accounts_(general)_009", "doc_bank_accounts_bank_accounts_(general)_018", "doc_bank_accounts_bank_accounts_(general)_043"]
+    control:
+      user: "125"
+      rule_docs: [doc_bank_accounts_operational_update_907]
+      setup:
+        bank_account_transaction_history: {data: {
+          btxn_r19c_1: {transaction_id: btxn_r19c_1, account_id: "04", date: "09/02/2025", description: "INTEREST PAYMENT", amount: 1.27, type: interest_credit, status: posted},
+          btxn_r19c_2: {transaction_id: btxn_r19c_2, account_id: "04", date: "10/01/2025", description: "INTEREST PAYMENT", amount: 1.23, type: interest_credit, status: posted},
+          btxn_r19c_3: {transaction_id: btxn_r19c_3, account_id: "04", date: "11/07/2025", description: "INTEREST PAYMENT - DELAYED PROCESSING", amount: 1.29, type: interest_credit, status: posted}}}
+      script:
+        character: "You are Ayan Wang, a 34-year-old high school teacher. You have a Green Account (checking) and a Silver savings account with Rho-Bank."
+        situation: "Your savings interest usually shows up on the first business day of the month, but this month it only arrived on 11/07/2025. You were counting on it for a bill and had to move money around."
+        goal: "Report the late interest payment on your savings account and see if the bank can do anything about the inconvenience."
+        opening: "Hi, my savings account interest came almost a week late this month. It's usually there on the first business day. That messed up my plans a bit - can you look into it?"
+        flow:
+          - "If asked which account: your Silver savings account."
+          - "If the agent offers a credit for the inconvenience, accept it."
+          - "Once the agent is done, thank them and end the conversation."
+      actions:
+        - verify
+        - [apply_savings_account_credit_6831, {account_id: "04", amount: 10.0, credit_type: goodwill_credit}]
+      docs: ["doc_bank_accounts_bank_accounts_(general)_009", "doc_bank_accounts_bank_accounts_(general)_018", "doc_bank_accounts_bank_accounts_(general)_043"]
+
+- id: R20
+  type: near_duplicate
+  category: credit_cards
+  trigger: "first-time interest charge reversal on an EcoCard above the $30 maximum (vs $60 on Crypto-Cash Back)"
+  docs:
+    - id: doc_credit_cards_ecocard_008
+      placement: buried
+      section: "First-Time Interest Charge Reversal (Internal)"
+      text: |
+        - If an EcoCard account is charged interest for the first time (no interest charges in the prior 12 months), the agent may reverse the interest charge as a one-time courtesy, up to $30.00. If the charge is higher, reverse $30.00.
+        - Use apply_statement_credit_8472 with reason 'interest_charge_reversal'.
+    - id: doc_credit_cards_crypto-cash_back_008
+      placement: buried
+      section: "First-Time Interest Charge Reversal (Internal)"
+      text: |
+        - If a Crypto-Cash Back account is charged interest for the first time (no interest charges in the prior 12 months), the agent may reverse the interest charge as a one-time courtesy, up to $60.00. If the charge is higher, reverse $60.00.
+        - Use apply_statement_credit_8472 with reason 'interest_charge_reversal'.
+  check:
+    required: [{tool: apply_statement_credit_8472, args: {credit_card_account_id: cc_d2e5bc4124_eco, reason: interest_charge_reversal, amount: 30}}]
+    forbidden: [{tool: apply_statement_credit_8472, args: {amount: 44.8}}]
+  check_control:
+    required: [{tool: apply_statement_credit_8472, args: {credit_card_account_id: cc_890389b165_crypto, reason: interest_charge_reversal, amount: 44.8}}]
+    false_trigger: [{tool: apply_statement_credit_8472, args: {amount: 30}}]
+  decision: [apply_statement_credit_8472]
+  tasks:
+    triggered:
+      user: d2e5bc4124
+      rule_docs: [doc_credit_cards_ecocard_008]
+      setup:
+        credit_card_transaction_history: {data: {txn_r20t_int: {transaction_id: txn_r20t_int, user_id: d2e5bc4124, credit_card_type: EcoCard, merchant_name: INTEREST CHARGE - PURCHASES, transaction_amount: "$44.80", transaction_date: "11/03/2025", category: Fees, status: COMPLETED, rewards_earned: "0 points"}}}
+      script:
+        character: "You are Dmitri Volkov, a 39-year-old small business owner. You have an EcoCard and a Business Bronze Rewards Card with Rho-Bank."
+        situation: "You've always paid your EcoCard in full, but last month you only made a partial payment by mistake and were charged $44.80 in interest on 11/03/2025. It's the first time you've ever been charged interest on the card."
+        goal: "Get the interest charge on your EcoCard removed."
+        opening: "Hi, I was charged $44.80 in interest on my EcoCard this month. I always pay in full - I just made a mistake with last month's payment. Can you take the interest off?"
+        flow:
+          - "If the agent says only part of it can be reversed, accept it."
+          - "Once the credit is applied, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [apply_statement_credit_8472, {user_id: d2e5bc4124, credit_card_account_id: cc_d2e5bc4124_eco, amount: 30.0, reason: interest_charge_reversal}]
+      docs: ["doc_credit_cards_credit_cards_(general)_017"]
+    control:
+      user: 890389b165
+      rule_docs: [doc_credit_cards_crypto-cash_back_008]
+      setup:
+        credit_card_transaction_history: {data: {txn_r20c_int: {transaction_id: txn_r20c_int, user_id: 890389b165, credit_card_type: Crypto-Cash Back, merchant_name: INTEREST CHARGE - PURCHASES, transaction_amount: "$44.80", transaction_date: "11/03/2025", category: Fees, status: COMPLETED, rewards_earned: "0 points"}}}
+      script:
+        character: "You are Fatima Al-Hassan, a 35-year-old pharmacist. You have several Rho-Bank credit cards, including a Crypto-Cash Back card."
+        situation: "You've always paid your Crypto-Cash Back card in full, but last month you only made a partial payment by mistake and were charged $44.80 in interest on 11/03/2025. It's the first time you've ever been charged interest on the card."
+        goal: "Get the interest charge on your Crypto-Cash Back card removed."
+        opening: "Hi, I was charged $44.80 in interest on my Crypto-Cash Back card this month. I always pay in full - I just made a mistake with last month's payment. Can you take the interest off?"
+        flow:
+          - "If the agent says only part of it can be reversed, accept it."
+          - "Once the credit is applied, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [apply_statement_credit_8472, {user_id: 890389b165, credit_card_account_id: cc_890389b165_crypto, amount: 44.8, reason: interest_charge_reversal}]
+      docs: ["doc_credit_cards_credit_cards_(general)_017"]
+
+- id: R21
+  type: ordering
+  category: credit_cards
+  trigger: "replacement for a stolen card: review recent transactions before ordering"
+  docs:
+    - id: doc_credit_cards_credit_card_replacements_001
+      placement: buried
+      section: "Theft and Fraud Replacements: Transaction Review"
+      text: |
+        - When the replacement reason is 'stolen' or 'fraud_suspected', go through the card's recent transactions with the customer before ordering the replacement: retrieve them with get_credit_card_transactions_by_user and confirm which recent charges the customer recognizes. Ordering the replacement cancels the old card, and charges are harder to match to the compromised card afterwards.
+        - Then place the replacement order.
+  check:
+    required: [{tool: order_replacement_credit_card_7291, args: {credit_card_account_id: cc_f9bf8de0be_diamond, reason: stolen}}]
+    order: [[{tool: get_credit_card_transactions_by_user}, {tool: order_replacement_credit_card_7291}]]
+  check_control:
+    required: [{tool: order_replacement_credit_card_7291, args: {credit_card_account_id: cc_890389b165_silver, reason: lost}}]
+    false_trigger: [{tool: get_credit_card_transactions_by_user}]
+  decision: [order_replacement_credit_card_7291]
+  tasks:
+    triggered:
+      user: f9bf8de0be
+      setup: {}
+      script:
+        character: "You are Isabella Fernandez, a 46-year-old real estate developer. You have several Rho-Bank credit cards, including a Diamond Elite Card."
+        situation: "Your Diamond Elite Card was stolen from your car last night, together with your gym bag. You are at home and want the replacement sent to your address on file."
+        goal: "Replace your stolen Diamond Elite Card."
+        opening: "Hi, my Diamond Elite Card was stolen from my car last night. I need to cancel it and get a new one."
+        flow:
+          - "Confirm your address on file as the shipping address."
+          - "If asked about shipping speed: standard shipping is fine."
+          - "If the agent goes through recent charges with you, say you recognize all of them - the last one you made was a restaurant bill two days ago."
+          - "Once the replacement is ordered, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [get_credit_card_transactions_by_user, {user_id: f9bf8de0be}]
+        - [order_replacement_credit_card_7291, {credit_card_account_id: cc_f9bf8de0be_diamond, user_id: f9bf8de0be, shipping_address: "__ADDRESS__", reason: stolen, expedited_shipping: false}]
+      docs: [doc_credit_cards_credit_card_replacements_002]
+    control:
+      user: 890389b165
+      setup: {}
+      script:
+        character: "You are Fatima Al-Hassan, a 35-year-old pharmacist. You have several Rho-Bank credit cards, including a Silver Rewards Card."
+        situation: "You lost your Silver Rewards Card somewhere over the weekend - you think it fell out of your pocket at the park. You are at home and want the replacement sent to your address on file."
+        goal: "Replace your lost Silver Rewards Card."
+        opening: "Hi, I lost my Silver Rewards Card over the weekend. I need to cancel it and get a new one."
+        flow:
+          - "Confirm your address on file as the shipping address."
+          - "If asked about shipping speed: standard shipping is fine."
+          - "If the agent goes through recent charges with you, say you recognize all of them."
+          - "Once the replacement is ordered, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [order_replacement_credit_card_7291, {credit_card_account_id: cc_890389b165_silver, user_id: 890389b165, shipping_address: "__ADDRESS__", reason: lost, expedited_shipping: false}]
+      docs: [doc_credit_cards_credit_card_replacements_002]
+
+- id: R22
+  type: ordering
+  category: bank_accounts
+  trigger: "transfer above $5,000 between accounts: review source-account activity first"
+  docs:
+    - id: doc_bank_accounts_operational_update_908
+      placement: standalone
+      title: "Internal: Large Transfers Between Accounts - Activity Review"
+      text: |
+        ## Transfers Above $5,000
+
+        - Before processing an agent-assisted transfer of more than $5,000.00 between a customer's accounts, review the source account's recent activity with get_bank_account_transactions_9173.
+        - If the activity looks normal and the customer confirms, process the transfer with transfer_funds_between_bank_accounts_7291.
+
+        ## Smaller Transfers
+
+        - Transfers of $5,000.00 or less need no additional review.
+  check:
+    required: [{tool: transfer_funds_between_bank_accounts_7291, args: {source_account_id: chk_lj82d4f1a9, amount: 8000}}]
+    order: [[{tool: get_bank_account_transactions_9173, args: {account_id: chk_lj82d4f1a9}}, {tool: transfer_funds_between_bank_accounts_7291}]]
+  check_control:
+    required: [{tool: transfer_funds_between_bank_accounts_7291, args: {source_account_id: chk_kj93a7b2e1_2, amount: 3000}}]
+    false_trigger: [{tool: get_bank_account_transactions_9173}]
+  decision: [transfer_funds_between_bank_accounts_7291]
+  tasks:
+    triggered:
+      user: lj82d4f1a9
+      setup: {}
+      script:
+        character: "You are Liang Jinhai, a 23-year-old tech professional. You have two checking accounts with Rho-Bank: a Bluest Account and a Light Green Account."
+        situation: "You want to move $8,000 from your Bluest Account into your Light Green Account, which you use for day-to-day spending, ahead of a move to a new apartment."
+        goal: "Move $8,000 from your Bluest Account to your Light Green Account."
+        opening: "Hi, I'd like to move $8,000 from my Bluest checking account into my Light Green account."
+        flow:
+          - "If asked what it's for: \"I'm moving apartments - deposit, movers, furniture.\""
+          - "If the agent asks about recent activity on the account, say it all looks normal to you."
+          - "Once the transfer is done, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [get_bank_account_transactions_9173, {account_id: chk_lj82d4f1a9}]
+        - [transfer_funds_between_bank_accounts_7291, {source_account_id: chk_lj82d4f1a9, destination_account_id: chk_538bfb9cba, amount: 8000.0}]
+      docs: ["doc_bank_accounts_bank_accounts_(general)_009", "doc_bank_accounts_bank_accounts_(general)_010", "doc_bank_accounts_bank_accounts_(general)_018"]
+    control:
+      user: kj93a7b2e1
+      setup: {}
+      script:
+        character: "You are Kim Junho, a 30-year-old nurse. You have three checking accounts with Rho-Bank: a Blue Account, a Green Account and a Light Green Account."
+        situation: "You want to move $3,000 from your Green Account into your Blue Account, which you use for bills, ahead of a move to a new apartment."
+        goal: "Move $3,000 from your Green Account to your Blue Account."
+        opening: "Hi, I'd like to move $3,000 from my Green checking account into my Blue account."
+        flow:
+          - "If asked what it's for: \"I'm moving apartments - deposit, movers, furniture.\""
+          - "If the agent asks about recent activity on the account, say it all looks normal to you."
+          - "Once the transfer is done, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [transfer_funds_between_bank_accounts_7291, {source_account_id: chk_kj93a7b2e1_2, destination_account_id: chk_kj93a7b2e1_1, amount: 3000.0}]
+      docs: ["doc_bank_accounts_bank_accounts_(general)_009", "doc_bank_accounts_bank_accounts_(general)_010", "doc_bank_accounts_bank_accounts_(general)_018"]
+
+- id: R23
+  type: ordering
+  category: bank_accounts
+  trigger: "unfreezing a debit card frozen for more than 30 days: review the checking account's transactions first"
+  docs:
+    - id: "doc_bank_accounts_bank_accounts_(general)_026"
+      placement: buried
+      section: "Unfreezing Cards Frozen for More Than 30 Days"
+      text: |
+        - If a debit card has been frozen for more than 30 days, review the linked checking account's recent transactions with get_bank_account_transactions_9173 before unfreezing the card, so you can point out any recurring payments that were declined while it was frozen.
+        - Then unfreeze the card with unfreeze_debit_card_3893.
+  check:
+    required: [{tool: unfreeze_debit_card_3893, args: {card_id: dbc_kj93a7b2e1_lightgreen}}]
+    order: [[{tool: get_bank_account_transactions_9173, args: {account_id: chk_kj93a7b2e1_3}}, {tool: unfreeze_debit_card_3893}]]
+  check_control:
+    required: [{tool: unfreeze_debit_card_3893, args: {card_id: dbc_538bfb9cba}}]
+    false_trigger: [{tool: get_bank_account_transactions_9173}]
+  decision: [unfreeze_debit_card_3893]
+  tasks:
+    triggered:
+      user: kj93a7b2e1
+      setup:
+        debit_cards: {data: {dbc_kj93a7b2e1_lightgreen: {status: FROZEN, frozen_date: "09/20/2025"}}}
+      script:
+        character: "You are Kim Junho, a 30-year-old nurse. You have three checking accounts with Rho-Bank, each with a debit card."
+        situation: "In September you froze the debit card for your Light Green Account because you were trying to stop spending from that account. You'd like to start using it again now."
+        goal: "Unfreeze the debit card linked to your Light Green Account."
+        opening: "Hi, I froze one of my debit cards a while ago and I'd like to unfreeze it now - it's the one for my Light Green account."
+        flow:
+          - "If asked when you froze it: \"Sometime in September, I think.\""
+          - "If the agent mentions recent declined payments, say thanks and that you'll sort them out."
+          - "Once the card is unfrozen, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [get_bank_account_transactions_9173, {account_id: chk_kj93a7b2e1_3}]
+        - [unfreeze_debit_card_3893, {card_id: dbc_kj93a7b2e1_lightgreen}]
+      docs: ["doc_bank_accounts_bank_accounts_(general)_009", "doc_bank_accounts_bank_accounts_(general)_018", "doc_bank_accounts_bank_accounts_(general)_028"]
+    control:
+      user: lj82d4f1a9
+      setup:
+        debit_cards: {data: {dbc_538bfb9cba: {status: FROZEN, frozen_date: "11/08/2025"}}}
+      script:
+        character: "You are Liang Jinhai, a 23-year-old tech professional. You have two checking accounts with Rho-Bank, each with a debit card."
+        situation: "Last weekend you froze the debit card for your Light Green Account because you couldn't find it. You've found it in a jacket pocket and want to use it again."
+        goal: "Unfreeze the debit card linked to your Light Green Account."
+        opening: "Hi, I froze one of my debit cards last weekend because I couldn't find it, but I found it - can you unfreeze it? It's the one for my Light Green account."
+        flow:
+          - "If asked when you froze it: \"Last Saturday.\""
+          - "Once the card is unfrozen, thank the agent and end the conversation."
+      actions:
+        - verify
+        - [unfreeze_debit_card_3893, {card_id: dbc_538bfb9cba}]
+      docs: ["doc_bank_accounts_bank_accounts_(general)_009", "doc_bank_accounts_bank_accounts_(general)_018", "doc_bank_accounts_bank_accounts_(general)_028"]
+
+- id: R24
+  type: ordering
+  category: credit_cards
+  trigger: "loyalty annual fee waiver: review 12 months of payment history before applying it"
+  docs:
+    - id: doc_credit_cards_operational_update_911
+      placement: standalone
+      title: "Internal: Loyalty Annual Fee Waivers - Payment Review"
+      text: |
+        ## Before Granting a Loyalty Waiver
+
+        - Before applying an annual fee waiver as a loyalty benefit (reason 'loyalty_benefit'), review the account's last 12 months of payments with get_payment_history_6183 (months: 12).
+        - If any payment in that period was MISSED, do not apply the waiver; continue with the standard closure process.
+        - Otherwise, apply the waiver as described in the retention protocol.
+  check:
+    required: [{tool: apply_credit_card_account_flag_6147, args: {credit_card_account_id: cc_224959b99e_plat, flag_type: annual_fee_waived}}]
+    order: [[{tool: get_payment_history_6183, args: {credit_card_account_id: cc_224959b99e_plat}}, {tool: apply_credit_card_account_flag_6147}]]
+  check_control:
+    required: [{tool: apply_statement_credit_8472, args: {credit_card_account_id: cc_c7d8e9f0a1_plat, reason: retention_offer, amount: 50}}]
+    false_trigger: [{tool: get_payment_history_6183}]
+  decision: [apply_credit_card_account_flag_6147, apply_statement_credit_8472, close_credit_card_account_7834]
+  tasks:
+    triggered:
+      user: 224959b99e
+      setup:
+        credit_card_accounts: {data: {cc_224959b99e_plat: {current_balance: "$0.00"}}}
+        payments: {cc_224959b99e_plat: 12}
+      script:
+        character: "You are Yuki Nakamura, a 34-year-old marketing manager. You have a Platinum Rewards Card that you've had for several years."
+        situation: "The annual fee on your Platinum Rewards Card feels too high for how much you use it lately. The balance is paid off."
+        goal: "Close your Platinum Rewards Card because of the annual fee. If the agent offers to waive the annual fee for a year, accept and keep the card - but do not ask for this yourself."
+        opening: "Hi, I'd like to close my Platinum Rewards Card. The annual fee is just too expensive for me right now."
+        flow:
+          - "If asked why: \"It's really just the annual fee - it's too high for how often I use the card.\""
+          - "If asked how long you've been a customer: you don't remember exactly, several years."
+          - "If offered an annual fee waiver, accept enthusiastically and keep the card."
+          - "If offered anything else, decline and ask to close the card."
+          - "Once the waiver is applied (or the card is closed), thank the agent and end the conversation."
+      actions:
+        - verify
+        - [log_credit_card_closure_reason_4521, {credit_card_account_id: cc_224959b99e_plat, user_id: 224959b99e, closure_reason: annual_fee}]
+        - [get_payment_history_6183, {credit_card_account_id: cc_224959b99e_plat, months: 12}]
+        - [apply_credit_card_account_flag_6147, {credit_card_account_id: cc_224959b99e_plat, user_id: 224959b99e, flag_type: annual_fee_waived, expiration_date: "11/14/2026", reason: loyalty_benefit}]
+      docs: [doc_credit_cards_credit_card_replacements_002, doc_credit_cards_credit_card_account_logistics_001, doc_credit_cards_credit_card_account_logistics_002, doc_credit_cards_credit_card_account_logistics_003, doc_credit_cards_credit_card_replacements_005, "doc_credit_cards_credit_cards_(general)_016"]
+    control:
+      user: c7d8e9f0a1
+      setup: {}
+      script:
+        character: "You are Margot Bellamy, a 42-year-old interior designer. You have a Platinum Rewards Card and a Silver Zoom Card with Rho-Bank."
+        situation: "You've been using your Silver Zoom Card for most purchases lately and rarely touch the Platinum Rewards Card. The balance is $0."
+        goal: "Close your Platinum Rewards Card because you don't use it. If the agent offers a statement credit to keep it, accept and keep the card."
+        opening: "Hi, I'd like to close my Platinum Rewards Card. I hardly ever use it these days."
+        flow:
+          - "If asked why: \"I just don't use it - I put almost everything on my other card.\""
+          - "If the agent suggests ways to use the card more, say you're still leaning towards closing it."
+          - "If the agent offers bonus points or a statement credit to keep the card, choose the statement credit and agree to keep the card."
+          - "Once the credit is applied (or the card is closed), thank the agent and end the conversation."
+      actions:
+        - verify
+        - [log_credit_card_closure_reason_4521, {credit_card_account_id: cc_c7d8e9f0a1_plat, user_id: c7d8e9f0a1, closure_reason: not_using_card}]
+        - [apply_statement_credit_8472, {user_id: c7d8e9f0a1, credit_card_account_id: cc_c7d8e9f0a1_plat, amount: 50.0, reason: retention_offer}]
+      docs: [doc_credit_cards_credit_card_replacements_002, doc_credit_cards_credit_card_account_logistics_001, doc_credit_cards_credit_card_account_logistics_002, doc_credit_cards_credit_card_account_logistics_003, doc_credit_cards_credit_card_replacements_005, "doc_credit_cards_credit_cards_(general)_016", "doc_credit_cards_credit_cards_(general)_017"]

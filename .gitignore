@@ -1,0 +1,10 @@
+.env
+.venv/
+__pycache__/
+.DS_Store
+# upstream tau2-bench is rsynced in for reproduction (see README); only the harness is ours
+tau2-bench/*
+!tau2-bench/jitprompt_rules/
+results/logs/
+results/jitprompt/snapshot_*.json
+results/jitprompt/ingest_*.json

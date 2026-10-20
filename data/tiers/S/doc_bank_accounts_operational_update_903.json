@@ -1,0 +1,5 @@
+{
+  "id": "doc_bank_accounts_operational_update_903",
+  "title": "Internal: Early Closure Fees on Accounts Opened With a Bonus",
+  "content": "## Accounts That Received a New-Account Bonus\n\n- Early closure fee waivers do not apply to checking accounts that received a new-account bonus deposit. On these accounts the early closure fee recovers part of the bonus when the account is closed early.\n- Check the account's transactions with get_bank_account_transactions_9173 for a bonus deposit (the description includes \"NEW ACCOUNT BONUS\").\n- If a bonus deposit is present, close the account without waiving the fee (waive_early_closure_fee: false), provided the balance covers the fee.\n"
+}

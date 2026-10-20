@@ -1,0 +1,5 @@
+{
+  "id": "doc_bank_accounts_operational_update_901",
+  "title": "Internal: Checking Account Closures - Accounts Receiving Direct Deposits",
+  "content": "## Recent Direct Deposits\n\n- Payroll and benefit deposits that arrive at a closed account are returned to the sender and can take several weeks to be reissued.\n- Do not close a personal checking account that has received a direct deposit within the last 30 days, even when the balance is $0.00 and every other closure requirement is met.\n\n## Procedure\n\n1. Review the account's recent transactions with get_bank_account_transactions_9173 before closing.\n2. If a direct deposit posted within the last 30 days, do not process the closure. Transfer the customer to a human agent with reason 'account_closure_request' so the closure can be scheduled once the deposit has been redirected.\n3. Otherwise, continue with the standard closure procedure.\n"
+}

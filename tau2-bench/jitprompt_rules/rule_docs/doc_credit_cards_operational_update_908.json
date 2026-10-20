@@ -1,0 +1,5 @@
+{
+  "id": "doc_credit_cards_operational_update_908",
+  "title": "Internal: Mid-Tier CLI Cooldown Change (Effective 09/15/2025)",
+  "content": "## Change Summary\n\n- Effective 09/15/2025, the cooldown between approved credit limit increases on mid-tier cards (Silver Rewards, Business Silver Rewards, Green Rewards and Silver Zoom) is 180 days.\n- Entry-tier and premium-tier cooldowns are unchanged.\n\n## Agent Guidance\n\n- If the most recent approved request on a mid-tier card was submitted within the last 180 days, record the new request and then deny it with denial_reason 'cooldown_period_active'. Tell the customer the date they become eligible again.\n"
+}

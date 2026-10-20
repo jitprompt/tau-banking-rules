@@ -1,0 +1,64 @@
+{
+  "id": "task_R18_t",
+  "description": {
+    "purpose": "Planted rule R18 (triggered)",
+    "relevant_policies": null,
+    "notes": "R18 (near_duplicate), triggered task. Trigger: balance transfer promotional APR on a Platinum Rewards Card (6 months, vs 12 on Gold). The rule applies here; the golden actions follow it."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Margot Bellamy, a 42-year-old interior designer. You have a Platinum Rewards Card and a Silver Zoom Card with Rho-Bank.\n\n**Your situation:** You have a balance on a card from another bank and want to move it to your Platinum Rewards Card to take advantage of a lower promotional rate on balance transfers.\n\n**Your goal:** Get the balance transfer promotional APR set up on your Platinum Rewards Card.\n\n**Information you know and should provide when asked:**\n- Your full name: Margot Bellamy\n- Your phone number: 303-555-0419\n- Your email: margot.bellamy@gmail.com\n- Your date of birth: 07/18/1989\n- Your address: 2847 Lavender Lane, Denver, CO 80202\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, I'd like to use the balance transfer promotion on my Platinum Rewards Card - I want to move a balance over from another bank.\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If asked about the amount you want to transfer: about $3,000.\n4. If the agent asks you to complete the balance transfer itself in the app, say that's fine.\n5. Once the agent confirms the promotional rate is set up, thank them and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": null,
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R18_t_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Margot Bellamy",
+          "user_id": "c7d8e9f0a1",
+          "address": "2847 Lavender Lane, Denver, CO 80202",
+          "email": "margot.bellamy@gmail.com",
+          "phone_number": "303-555-0419",
+          "date_of_birth": "07/18/1989",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R18_t_1",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "apply_credit_card_account_flag_6147"
+        }
+      },
+      {
+        "action_id": "task_R18_t_2",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "apply_credit_card_account_flag_6147",
+          "arguments": "{\"credit_card_account_id\": \"cc_c7d8e9f0a1_plat\", \"user_id\": \"c7d8e9f0a1\", \"flag_type\": \"promotional_apr\", \"expiration_date\": \"05/14/2026\", \"reason\": \"promotional\"}"
+        }
+      }
+    ],
+    "reward_basis": [
+      "DB"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_credit_cards_platinum_rewards_card_001",
+    "doc_credit_cards_credit_card_account_logistics_003"
+  ]
+}

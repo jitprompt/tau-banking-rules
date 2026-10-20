@@ -1,0 +1,5 @@
+{
+  "id": "doc_bank_accounts_operational_update_904",
+  "title": "Internal: Overdraft Courtesy Refunds - Repeat Overdrafts",
+  "content": "## Repeat Overdrafts\n\n- If the account was charged another overdraft fee in the 90 days before the fee the customer is asking about, the courtesy refund is limited to 50% of that fee.\n- Review the account's transactions with get_bank_account_transactions_9173 for earlier overdraft fees before applying the credit.\n- If there is no earlier overdraft fee in that period, the standard courtesy refund applies.\n"
+}

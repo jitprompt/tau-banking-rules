@@ -1,0 +1,5 @@
+{
+  "id": "doc_bank_accounts_operational_update_905",
+  "title": "Internal: Debit Card Rush Delivery Fee Change (Effective 10/01/2025)",
+  "content": "## Updated Fee\n\n- Effective 10/01/2025, the RUSH delivery fee for debit card orders is $25 (delivery_fee: 25).\n- STANDARD and EXPEDITED delivery fees are unchanged.\n- Tell the customer about the fee before placing the order; it is deducted from the linked checking account.\n"
+}

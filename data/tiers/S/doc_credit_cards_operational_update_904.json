@@ -1,0 +1,5 @@
+{
+  "id": "doc_credit_cards_operational_update_904",
+  "title": "Internal: Retention Offers - Minimum Account Age",
+  "content": "## Eligibility for Retention Offers\n\n- Retention offers of any kind (annual fee waivers, bonus points, statement credits) are only available on credit card accounts that have been open for at least 180 days.\n- Calculate the account age from the account open date.\n\n## Accounts Open Fewer Than 180 Days\n\n- Do not make a retention offer.\n- Log the customer's closure reason and, if the account meets the closure requirements, proceed with the closure once the customer confirms.\n"
+}

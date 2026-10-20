@@ -1,0 +1,87 @@
+{
+  "id": "task_R14_t",
+  "description": {
+    "purpose": "Planted rule R14 (triggered)",
+    "relevant_policies": null,
+    "notes": "R14 (superseded), triggered task. Trigger: mid-tier retention statement credit (new amount $35, effective 09/01/2025). The rule applies here; the golden actions follow it."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Margot Bellamy, a 42-year-old interior designer. You have a Silver Zoom Card and a Platinum Rewards Card with Rho-Bank.\n\n**Your situation:** You barely use your Silver Zoom Card anymore since you mostly use your Platinum card. The Silver Zoom balance is $0.\n\n**Your goal:** You'd like to close the Silver Zoom Card, but you are open to keeping it if the bank gives you a statement credit.\n\n**Information you know and should provide when asked:**\n- Your full name: Margot Bellamy\n- Your phone number: 303-555-0419\n- Your email: margot.bellamy@gmail.com\n- Your date of birth: 07/18/1989\n- Your address: 2847 Lavender Lane, Denver, CO 80202\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, I'd like to close my Silver Zoom Card. I hardly ever use it these days.\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If asked why: \"I just don't use it - I put everything on my Platinum card.\"\n4. If the agent suggests ways to use the card more, say you're still leaning towards closing it.\n5. If the agent offers bonus points or a statement credit to keep the card, choose the statement credit and agree to keep the card.\n6. Once the credit is applied (or the card is closed), thank the agent and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": null,
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R14_t_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Margot Bellamy",
+          "user_id": "c7d8e9f0a1",
+          "address": "2847 Lavender Lane, Denver, CO 80202",
+          "email": "margot.bellamy@gmail.com",
+          "phone_number": "303-555-0419",
+          "date_of_birth": "07/18/1989",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R14_t_1",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "log_credit_card_closure_reason_4521"
+        }
+      },
+      {
+        "action_id": "task_R14_t_2",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "log_credit_card_closure_reason_4521",
+          "arguments": "{\"credit_card_account_id\": \"cc_c7d8e9f0a1_szoom\", \"user_id\": \"c7d8e9f0a1\", \"closure_reason\": \"not_using_card\"}"
+        }
+      },
+      {
+        "action_id": "task_R14_t_3",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "apply_statement_credit_8472"
+        }
+      },
+      {
+        "action_id": "task_R14_t_4",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "apply_statement_credit_8472",
+          "arguments": "{\"user_id\": \"c7d8e9f0a1\", \"credit_card_account_id\": \"cc_c7d8e9f0a1_szoom\", \"amount\": 35.0, \"reason\": \"retention_offer\"}"
+        }
+      }
+    ],
+    "reward_basis": [
+      "DB"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_credit_cards_credit_card_account_logistics_003",
+    "doc_credit_cards_operational_update_907",
+    "doc_credit_cards_credit_card_replacements_002",
+    "doc_credit_cards_credit_card_account_logistics_001",
+    "doc_credit_cards_credit_card_account_logistics_002",
+    "doc_credit_cards_credit_card_replacements_005",
+    "doc_credit_cards_credit_cards_(general)_016",
+    "doc_credit_cards_credit_cards_(general)_017"
+  ]
+}

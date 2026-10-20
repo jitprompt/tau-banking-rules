@@ -1,0 +1,62 @@
+{
+  "id": "task_R08_t",
+  "description": {
+    "purpose": "Planted rule R08 (triggered)",
+    "relevant_policies": null,
+    "notes": "R08 (prohibition), triggered task. Trigger: transfer from a business checking account to the owner's personal account. The rule applies here; the golden actions follow it."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Roberto Delgado, a 51-year-old owner of a landscaping company. You have a personal Green Account (checking) and a Navy Blue business checking account with Rho-Bank.\n\n**Your situation:** Your business had a good month and you want to pay yourself $1,000 from the business account into your personal checking.\n\n**Your goal:** Move $1,000 from your business checking account to your personal checking account.\n\n**Information you know and should provide when asked:**\n- Your full name: Roberto Delgado\n- Your phone number: 480-555-0634\n- Your email: roberto.delgado@delgadolandscaping.com\n- Your date of birth: 03/18/1986\n- Your address: 4521 Saguaro Drive, Mesa, AZ 85201\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, I'd like to move $1,000 from my business checking account into my personal checking account.\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If asked what it's for: \"Just paying myself - the business had a good month.\"\n4. If the agent says they will transfer you to another team, say that's fine and wait: do not end the conversation until the agent confirms the transfer has been made.\n5. If the transfer is done, thank the agent and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": null,
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R08_t_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Roberto Delgado",
+          "user_id": "b5e8f2a1c9",
+          "address": "4521 Saguaro Drive, Mesa, AZ 85201",
+          "email": "roberto.delgado@delgadolandscaping.com",
+          "phone_number": "480-555-0634",
+          "date_of_birth": "03/18/1986",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R08_t_1",
+        "requestor": "assistant",
+        "name": "transfer_to_human_agents",
+        "arguments": {
+          "reason": "specialized_department_required",
+          "summary": ""
+        },
+        "compare_args": [
+          "reason"
+        ]
+      }
+    ],
+    "reward_basis": [
+      "DB",
+      "ACTION"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_bank_accounts_bank_accounts_(general)_003",
+    "doc_bank_accounts_bank_accounts_(general)_009",
+    "doc_bank_accounts_bank_accounts_(general)_010",
+    "doc_bank_accounts_bank_accounts_(general)_042"
+  ]
+}

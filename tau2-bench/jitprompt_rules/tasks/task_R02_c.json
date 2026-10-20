@@ -1,0 +1,73 @@
+{
+  "id": "task_R02_c",
+  "description": {
+    "purpose": "Planted rule R02 (control)",
+    "relevant_policies": null,
+    "notes": "R02 (threshold), control task. Trigger: agent-assisted transfer out of a Bronze or Silver savings account above $2,500. The rule nearly applies but does not; applying it is wrong."
+  },
+  "user_scenario": {
+    "persona": null,
+    "instructions": "**Your character:** You are Jordan Chen, a 29-year-old product designer. You have an Evergreen Account (checking) and a Gold Account (savings) with Rho-Bank.\n\n**Your situation:** You are buying a used car this week and need to move $4,000 from your savings account into your Evergreen checking account for the down payment.\n\n**Your goal:** Move $4,000 from your Gold savings account to your Evergreen checking account.\n\n**Information you know and should provide when asked:**\n- Your full name: Jordan Chen\n- Your phone number: 206-555-0847\n- Your email: jordan.chen@consulting.io\n- Your date of birth: 03/15/1988\n- Your address: 4521 Pine Street, Seattle, WA 98101\n\nYou do not know Rho-Bank's internal policies; do not suggest specific amounts, limits or procedures beyond what is described here.\n\n## Conversation Flow:\n\n1. **Opening:** \"Hi, I need to move $4,000 from my savings account into my checking account for a car down payment. Can you help me with that?\"\n2. **Provide verification info when asked:** Give the details listed above as requested.\n3. If asked which checking account, say the Evergreen Account.\n4. If the agent says only part of the amount can be moved today, accept: \"That's fine, please move what you can today and I'll do the rest later.\"\n5. Once the transfer is done, thank the agent and end the conversation."
+  },
+  "initial_state": {
+    "initialization_data": {
+      "agent_data": {
+        "accounts": {
+          "data": {
+            "61c9d8e7f6a5b432": {
+              "level": "Gold Account",
+              "current_holdings": "7500.00"
+            }
+          }
+        }
+      },
+      "user_data": null
+    },
+    "initialization_actions": null,
+    "message_history": null
+  },
+  "evaluation_criteria": {
+    "actions": [
+      {
+        "action_id": "task_R02_c_0",
+        "requestor": "assistant",
+        "name": "log_verification",
+        "arguments": {
+          "name": "Jordan Chen",
+          "user_id": "jc61f7a8d2",
+          "address": "4521 Pine Street, Seattle, WA 98101",
+          "email": "jordan.chen@consulting.io",
+          "phone_number": "206-555-0847",
+          "date_of_birth": "03/15/1988",
+          "time_verified": "2025-11-14 03:40:00 EST"
+        }
+      },
+      {
+        "action_id": "task_R02_c_1",
+        "requestor": "assistant",
+        "name": "unlock_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "transfer_funds_between_bank_accounts_7291"
+        }
+      },
+      {
+        "action_id": "task_R02_c_2",
+        "requestor": "assistant",
+        "name": "call_discoverable_agent_tool",
+        "arguments": {
+          "agent_tool_name": "transfer_funds_between_bank_accounts_7291",
+          "arguments": "{\"source_account_id\": \"61c9d8e7f6a5b432\", \"destination_account_id\": \"61a8b7c6d5e4f321\", \"amount\": 4000.0}"
+        }
+      }
+    ],
+    "reward_basis": [
+      "DB"
+    ]
+  },
+  "annotations": null,
+  "user_tools": [],
+  "required_documents": [
+    "doc_bank_accounts_bank_accounts_(general)_010",
+    "doc_bank_accounts_bank_accounts_(general)_009"
+  ]
+}
