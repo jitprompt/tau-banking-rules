@@ -1,7 +1,7 @@
 """`jitprompt_pinned`: the jitprompt arm plus a few always-on "core procedure" docs.
 
-Prototype of pinned core docs (stall correction), design frozen in
-PROGRESS.md before any run. Models a jitprompt namespace that returns admin-pinned docs as
+Prototype of pinned core docs (stall correction), design frozen
+before any run. Models a jitprompt namespace that returns admin-pinned docs as
 MCP server `instructions`, which clients place in the system prompt. Everything else is
 identical to the jitprompt arm: same prompt, same three MCP tools, same namespace.
 """

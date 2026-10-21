@@ -91,7 +91,7 @@
 - **Control tasks were handled correctly** 0.78–0.87 of the time at S and 0.57–0.63 at XL. Most of the XL errors are not false triggers but unfinished or different actions.
 
 ## Follow-up experiments (post-hoc, after the pre-registered study)
-These ran after the main results were known. They target the failure the main run exposed. Each was pre-registered in `PROGRESS.md` before it ran, with a design and success criterion fixed in advance. All are at XL, k = 2, 46 tasks, same agent and user models, compared on the same 46 triggered (task, trial) pairs.
+These ran after the main results were known. They target the failure the main run exposed. Each was pre-registered in the run log ([`PROGRESS.md` in the first commit](https://github.com/jitprompt/tau-banking-rules/blob/07555e2be6a4d77110b0083fa4e7fb8ba4436e76/PROGRESS.md)) before it ran, with a design and success criterion fixed in advance. All are at XL, k = 2, 46 tasks, same agent and user models, compared on the same 46 triggered (task, trial) pairs.
 
 ![all arms at XL](results/xl_arms.png)
 
@@ -177,4 +177,4 @@ The win–loss columns count triggered pairs where only the row's arm adhered vs
 
 A focused two-arm version (full prompt vs jitprompt) is `REPORT_full_vs_jitprompt.md`.
 
-Files: `results/{runs,summary,paired,by_type,by_position,attribution}.csv`, `results/xl_arms.png`, `results/replay/replay_plans.csv`, `RULES_TABLE.md`, `DEVIATIONS.md`, `PROGRESS.md`. Code is in `tau2-bench/jitprompt_rules/`, on branch `jitprompt-rules`.
+Files: `results/{runs,summary,paired,by_type,by_position,attribution}.csv`, `results/xl_arms.png`, `results/replay/replay_plans.csv`, `RULES_TABLE.md`, `DEVIATIONS.md`. Code is in `tau2-bench/jitprompt_rules/`, on branch `jitprompt-rules`.

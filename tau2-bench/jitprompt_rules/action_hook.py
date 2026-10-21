@@ -1,6 +1,6 @@
 """`jitprompt_action`: the jitprompt arm plus action-indexed retrieval (a pre-call hook).
 
-Prototype of action-indexed retrieval, design frozen in PROGRESS.md before any run.
+Prototype of action-indexed retrieval, design frozen before any run.
 
 The agent sees exactly the jitprompt arm (same prompt, same three MCP tools, same namespace).
 In addition, every state-mutating discoverable tool call passes through a hook:
